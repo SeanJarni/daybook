@@ -2,7 +2,7 @@
    The block between the BUILD markers is written by tools/build-sw.ps1.
    Run that script after changing any app file; a new VERSION makes phones update. */
 // BUILD:START
-const VERSION='79d618d4ce9e';
+const VERSION='4b6ec74bd534';
 const ASSETS=[
   './',
   'index.html',

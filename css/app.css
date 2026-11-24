@@ -281,3 +281,11 @@ select{font:inherit;color:var(--ink);background:var(--soft);border:1px solid var
 .dataic{width:26px;height:26px;border-radius:8px;background:var(--soft);color:var(--accent);display:grid;place-items:center;font-size:16px;font-weight:800;flex:none;box-shadow:0 0 0 1px var(--line)}
 .empty{padding:40px 0;text-align:center;color:var(--mute)}
 .daysheet .item{padding:11px 0}
+
+/* ---------- standalone app (home screen) fixes ----------
+   In standalone mode the status bar overlaps the page (black-translucent),
+   so the header grows by the top inset; size the Home hero to match. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.hero{min-height:calc(100vh - 118px - var(--st));min-height:calc(100dvh - 118px - var(--st))}
+#app:has(.ticker) .hero{min-height:calc(100vh - 150px - var(--st));min-height:calc(100dvh - 150px - var(--st))}
+.hero-in{padding-bottom:calc(26px + var(--sb))}
