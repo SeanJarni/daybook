@@ -16,7 +16,7 @@ const sortItems=a=>[...a].sort((x,y)=>(x.time?0:1)-(y.time?0:1)||(x.time||'').lo
 const view=e=>{const c=catById(e.cat);return{name:c?c.name:e.catName,color:c?catColor(c):slotColors()[nearestSlot(fixC(e.color||'#7A6A80'))]}};
 
 /* ---------- persistence ---------- */
-let db=null,me=null,mode='local',ASSETS=null;
+let mode='local',ASSETS=null; // ASSETS: true when uploaded photos can be stored (IndexedDB)
 const dirty=new Set(),inflight=new Set();let flushT=null;
 function markDirty(id){dirty.add(id);clearTimeout(flushT);flushT=setTimeout(flush,350)}
 async function flush(){
@@ -34,12 +34,27 @@ async function flush(){
   }
 }
 async function save(id,body){
-  if(mode==='db')return db.doc(`data/users/${me}/${id}`).set(body);
+  if(mode==='db')return Store.putDoc(id,body);
   try{localStorage.setItem('daybook:doc:'+id,JSON.stringify(body))}catch(e){}
 }
-function loadLocal(){
+function readLocalDocs(){
+  const o={};
   try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!k.startsWith('daybook:doc:'))continue;
-    const id=k.slice(12),v=JSON.parse(localStorage.getItem(k));if(id==='library'){S.lib=migrate(v);if(upgrade(S.lib))markDirty('library')}else if(id==='meta')S.meta=v;else if(id==='photos')S.photos=v;else S.months[id]=v}}catch(e){}
+    try{o[k.slice(12)]=JSON.parse(localStorage.getItem(k))}catch(e){}}}catch(e){}
+  return o;
+}
+function applyDocs(docs){
+  for(const [id,v] of Object.entries(docs)){if(!v)continue;
+    if(id==='library'){S.lib=migrate(v);if(upgrade(S.lib))markDirty('library')}else if(id==='meta')S.meta=v;else if(id==='photos')S.photos=v;else if(id.startsWith('m-'))S.months[id]=v}
+}
+/* drop uploaded photos whose image isn't on this device (e.g. from a claude.ai backup) */
+function pruneMissingPhotos(){
+  const P=S.photos;if(!P||!P.photos)return false;
+  const keep=P.photos.filter(p=>!p.asset||urlCache[p.asset]);
+  if(keep.length===P.photos.length)return false;
+  P.photos=keep.length?keep:photosDefault().photos;
+  if(P.active!==ALL&&!P.photos.some(p=>p.album===P.active))P.active=ALL;
+  return true;
 }
 let pendingRender=false;
 function isTyping(){const a=document.activeElement;return !!a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)}
@@ -48,34 +63,28 @@ function banner(msg){$('#banner').innerHTML=msg?`<div class="banner">${esc(msg)}
 
 async function init(){
   render();
-  const c=window.claude;
-  if(c&&c.use){
-    try{db=await c.use('db')}catch(e){db=null}
-    try{const u=await c.use('user');me=u?await u.id():null}catch(e){me=null}
-    try{ASSETS=await c.use('assets')}catch(e){ASSETS=null}
-  }
-  if(db&&me){
+  let docs=null;
+  try{docs=await Store.allDocs()}catch(e){docs=null}
+  if(docs){
     mode='db';
-    const loadT=setTimeout(()=>{if(!S.ready){S.ready=true;render()}banner("Can't reach your saved schedule yet. Showing what's on this device.")},10000);
-    db.collection(`data/users/${me}`).onSnapshot(snap=>{
-      let changed=false;
-      for(const d of snap.docs){
-        if(dirty.has(d.id)||inflight.has(d.id))continue;
-        const v=d.data();if(!v)continue;
-        const cur=d.id==='library'?S.lib:d.id==='meta'?S.meta:d.id==='photos'?S.photos:S.months[d.id];
-        if(cur&&JSON.stringify(cur)===JSON.stringify(v))continue;
-        changed=true;
-        if(d.id==='library'){S.lib=migrate(clone(v));if(upgrade(S.lib))markDirty('library')}else if(d.id==='meta')S.meta=clone(v);else if(d.id==='photos'){S.photos=clone(v);setTimeout(refreshSlides)}else if(d.id.startsWith('m-'))S.months[d.id]=clone(v);
+    /* first run here: carry over anything saved in localStorage, then clear it */
+    if(!Object.keys(docs).length){
+      const old=readLocalDocs();
+      if(Object.keys(old).length){
+        try{await Store.putDocs(old);for(const k of Object.keys(old))localStorage.removeItem('daybook:doc:'+k)}catch(e){}
+        docs=old;
       }
-      if(!snap.metadata.fromCache){clearTimeout(loadT);banner('')}
-      const first=!S.ready;S.ready=true;
-      if(first||changed){if(isTyping())pendingRender=true;else{render();if(S.sheet&&S.sheet.type==='day')drawSheet()}}
-    },err=>{clearTimeout(loadT);S.ready=true;render();banner('Sync stopped. Reopen the page to reconnect.')});
+    }
+    try{const blobs=await Store.allBlobs();for(const [id,b] of Object.entries(blobs))urlCache[id]=URL.createObjectURL(b)}catch(e){}
+    ASSETS=true;
+    applyDocs(docs);
+    if(pruneMissingPhotos())markDirty('photos');
+    Store.persist();
   }else{
-    mode='local';loadLocal();S.ready=true;
-    banner('Saving on this device only. Open from claude.ai while signed in to sync across devices.');
-    render();
+    mode='local';applyDocs(readLocalDocs());
+    banner("This browser won't keep data reliably. Back up to a file often.");
   }
+  S.ready=true;render();
 }
 
 /* ---------- render ---------- */
@@ -83,7 +92,7 @@ function render(){
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.view));
   applyTheme();renderNav();renderTicker();
   {const f=$('#fstatus');if(f){const lb=S.meta&&S.meta.lastBackup;const fmt=k=>{const d=parse(k);return `${MON[d.getMonth()]} ${d.getDate()}`};
-    f.textContent=(mode==='db'?'Saved to your Claude account':'Saved on this device')+' · '+(lb?`Last backup ${fmt(lb)}`:'No backup yet')}}
+    f.textContent='Saved on this device · '+(lb?`Last backup ${fmt(lb)}`:'No backup yet')}}
   const now=new Date();$('#bdate').textContent=`${DOW[(now.getDay()+6)%7]}, ${MON[now.getMonth()]} ${now.getDate()}`;
   const main=$('#main');main.classList.toggle('home',S.view==='home'&&S.ready);
   if(!S.ready){main.innerHTML='<div class="empty">Loading your schedule...</div>';return}
@@ -171,9 +180,10 @@ function renderHome(main){
 }
 const BUILTIN=[['florence',50],['trail',68],['thorns',50],['badwater',40],['dune',50],['statue',55],['fountain',50],['sailboat',62],['cat',62],['pesaro',50]];
 const ALL='__all',PICKS="Sean's picks";
-function photos(){if(!S.photos)S.photos={albums:[PICKS],photos:BUILTIN.map(([n,x])=>({id:'b-'+n,builtin:n,album:PICKS,x})),active:ALL,speed:10,zoom:true};return S.photos}
-const urlCache={};
-const photoSrc=p=>p.builtin?`slides/${p.builtin}.jpg`:(urlCache[p.asset]||'/_blob/'+p.asset);
+const photosDefault=()=>({albums:[PICKS],photos:BUILTIN.map(([n,x])=>({id:'b-'+n,builtin:n,album:PICKS,x})),active:ALL,speed:10,zoom:true});
+function photos(){if(!S.photos)S.photos=photosDefault();return S.photos}
+const urlCache={}; // asset id -> object URL of its stored JPEG
+const photoSrc=p=>p.builtin?`slides/${p.builtin}.jpg`:(urlCache[p.asset]||'');
 function activeSet(){const P=photos();let a=P.active===ALL?P.photos:P.photos.filter(p=>p.album===P.active);return a.length?a:P.photos}
 let slidesEl=null,slideIdx=0,slideT=null,slidesSig='';
 const slideSig=()=>JSON.stringify([activeSet().map(p=>[p.id,p.x]),photos().zoom!==false]);
@@ -265,7 +275,7 @@ function photoCard(page){
       ${can?`<label class="pth add" aria-label="Add photos">+<input type="file" accept="image/*" multiple hidden data-upload="${esc(a)}"></label>`:''}</div>
       ${sel&&sel.album===a?panel(sel):''}</div>`).join('')}
     <div class="row"><input class="grow" placeholder="+ New album (e.g. Travel)" data-add="album" enterkeyhint="done" style="margin-top:10px"></div>
-    ${can?'<div class="sub" style="margin-top:8px">Tap + to add from your camera roll. Tap a photo to move it, adjust its crop, or remove it.</div>':'<div class="sub" style="margin-top:8px">Adding photos works when Daybook is open on claude.ai, signed in as you.</div>'}
+    ${can?'<div class="sub" style="margin-top:8px">Tap + to add from your camera roll. Tap a photo to move it, adjust its crop, or remove it.</div>':'<div class="sub" style="margin-top:8px">Adding photos needs browser storage, which this browser has turned off.</div>'}
   </div>`;
 }
 async function shrink(file){
@@ -277,9 +287,9 @@ async function shrink(file){
 async function uploadPhotos(files,album){
   if(!ASSETS)return;const P=photos();let ok=0;
   for(let i=0;i<files.length;i++){toast(`Adding photo ${i+1} of ${files.length}...`);
-    try{const blob=await shrink(files[i]);const r=await ASSETS.upload(blob,{type:'image/jpeg'});urlCache[r.id]=r.url;
-      P.photos.push({id:'u-'+rid(),asset:r.id,album,x:50});ok++;markDirty('photos')}
-    catch(e){toast(e&&e.code==='quota_or_state'?'Photo storage is full':e&&e.code==='too_large'?'That photo is too large':"Couldn't add that photo");await new Promise(r=>setTimeout(r,1200))}}
+    try{const blob=await shrink(files[i]);if(!blob)throw new Error('shrink failed');const id='a-'+rid();await Store.putBlob(id,blob);urlCache[id]=URL.createObjectURL(blob);
+      P.photos.push({id:'u-'+rid(),asset:id,album,x:50});ok++;markDirty('photos')}
+    catch(e){toast(e&&e.code==='quota_exceeded'?'Photo storage is full':"Couldn't add that photo");await new Promise(r=>setTimeout(r,1200))}}
   if(ok)toast(`Added ${ok} photo${ok===1?'':'s'}`);render();refreshSlides();
 }
 function renderActs(main){
@@ -450,9 +460,9 @@ async function exportIcs(){
   L.push('END:VCALENDAR');
   if(!n){toast('Nothing open to send in this view');return}
   const text=L.join('\r\n');
-  let dl=null;try{dl=window.claude&&await window.claude.use('downloads')}catch(e){}
-  if(dl){try{await dl.save({filename:S.view==='week'?'daybook-week.ics':'daybook-month.ics',data:text});toast('Open the file to add it to your calendar');return}catch(e){toast('Download cancelled');return}}
-  try{await navigator.clipboard.writeText(text);toast('Calendar file copied')}catch(e){toast('Downloads are not available here')}
+  try{await saveFile(S.view==='week'?'daybook-week.ics':'daybook-month.ics',text,'text/calendar');toast('Open the file to add it to your calendar')}
+  catch(e){if(e&&e.name==='AbortError'){toast('Download cancelled');return}
+    try{await navigator.clipboard.writeText(text);toast('Calendar file copied')}catch(e2){toast("Couldn't save the calendar file")}}
 }
 
 /* ---------- backup reminder ticker (1st & 15th) ---------- */
@@ -469,17 +479,17 @@ function renderTicker(){
 /* ---------- backup / restore ---------- */
 async function backup(){
   const data=JSON.stringify({app:'daybook',format:1,saved:new Date().toISOString(),library:lib(),months:S.months,photos:S.photos||null});
-  let dl=null;try{dl=window.claude&&await window.claude.use('downloads')}catch(e){}
-  const done=()=>{S.meta={...(S.meta||{}),lastBackup:todayKey()};markDirty('meta');renderTicker()};
-  if(dl){try{await dl.save({filename:`daybook-backup-${todayKey()}.json`,data});done();toast('Backup saved')}catch(e){toast('Backup cancelled')}return}
-  try{await navigator.clipboard.writeText(data);done();toast('Backup copied to clipboard')}catch(e){toast('Downloads are not available here')}
+  const done=()=>{S.meta={...(S.meta||{}),lastBackup:todayKey()};markDirty('meta');render()};
+  try{await saveFile(`daybook-backup-${todayKey()}.json`,data,'application/json');done();toast('Backup saved')}
+  catch(e){if(e&&e.name==='AbortError'){toast('Backup cancelled');return}
+    try{await navigator.clipboard.writeText(data);done();toast('Backup copied to clipboard')}catch(e2){toast("Couldn't save the backup")}}
 }
 function applyRestore(){
   const o=S.pendingRestore;if(!o)return;S.pendingRestore=null;
   S.lib=migrate(clone(o.library));upgrade(S.lib);markDirty('library');
   for(const id of Object.keys(S.months))if(!o.months[id]){S.months[id]={days:{}};markDirty(id)}
   for(const [id,m] of Object.entries(o.months))if(/^m-\d{4}-\d{2}$/.test(id)){S.months[id]=clone(m);markDirty(id)}
-  if(o.photos){S.photos=clone(o.photos);markDirty('photos');refreshSlides()}
+  if(o.photos){S.photos=clone(o.photos);pruneMissingPhotos();markDirty('photos');refreshSlides()}
   toast('Backup restored');render();
 }
 
@@ -553,7 +563,7 @@ document.addEventListener('click',ev=>{
     case 'psel':S.photoSel=S.photoSel===ds.id?null:ds.id;render();break;
     case 'pcrop':{const p=photos().photos.find(x=>x.id===S.photoSel);if(p){p.x=+ds.v;markDirty('photos');render();refreshSlides()}break}
     case 'premove':if(arm(b,'Tap again to remove')){const P=photos(),p=P.photos.find(x=>x.id===ds.id);if(p){
-        if(p.asset&&ASSETS)ASSETS.delete(p.asset).catch(()=>{});P.photos=P.photos.filter(x=>x.id!==p.id);S.photoSel=null;markDirty('photos');render();refreshSlides()}}break;
+        if(p.asset&&ASSETS&&!P.photos.some(x=>x!==p&&x.asset===p.asset)){Store.delBlob(p.asset).catch(()=>{});if(urlCache[p.asset]){URL.revokeObjectURL(urlCache[p.asset]);delete urlCache[p.asset]}}P.photos=P.photos.filter(x=>x.id!==p.id);S.photoSel=null;markDirty('photos');render();refreshSlides()}}break;
     case 'delalbum':{const P=photos(),a=P.albums[+ds.a];if(P.albums.length<2){toast('Keep at least one album');break}
       const has=P.photos.some(p=>p.album===a);if(has&&!arm(b,'Photos move to '+P.albums.find(x=>x!==a)))break;
       const to=P.albums.find(x=>x!==a);P.photos.forEach(p=>{if(p.album===a)p.album=to});P.albums=P.albums.filter(x=>x!==a);if(P.active===a)P.active=ALL;
