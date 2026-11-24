@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daybook</title>
+<style>
+:root{--t1:#F6A961;--t2:#E56B5E;--t3:#BB405C;--t4:#843660;--t5:#583168;--deep:#2B1A35;--deep-rgb:43,26,53;--tint-rgb:88,49,104;
+--tick1:#F6A961;--tick2:#E56B5E;--tick-ink:#2B1A35;--hi:#F6A961;--accent-l:#BB405C;--accent-d:#E56B5E;--done-l:#843660;--done-d:#F6A961;
+--btn:linear-gradient(100deg,#E56B5E,#BB405C 55%,#843660);
+--sand:var(--t1);--terra:var(--t2);--blush:var(--t3);--camelot:var(--t4);--bossa:var(--t5);
+--bg:#FBF6F2;--card:#fff;--ink:#2B1A35;--mute:#8C7B8F;--line:#EEE3DE;--soft:#F6EDE8;--accent:var(--accent-l);--done:var(--done-l);--danger:#C8384F;
+--grad:linear-gradient(90deg,var(--t1),var(--t2),var(--t3),var(--t4),var(--t5))}
+@media (prefers-color-scheme:dark){:root{--bg:#170F1D;--card:#221729;--ink:#F7EEF2;--mute:#A693A9;--line:#33253B;--soft:#2B1E33;--accent:var(--accent-d);--done:var(--done-d);--danger:#FF6F7D}}
+*{box-sizing:border-box}
+html,body{margin:0}
+html{background:var(--deep)}
+html,body{overscroll-behavior-y:none}
+#app{min-height:100vh;display:flex;flex-direction:column;background:var(--deep);overflow-x:clip;max-width:100%}
+#banner{background:var(--bg)}
+:root{--sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px);--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--ink);font:15px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+main{flex:1 0 auto;background:var(--bg)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+input,select,textarea{font-size:16px!important}
+html,body,button,input,select,label{touch-action:manipulation}
+body{overflow-x:hidden}
+input{font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:9px 11px;outline:none;min-width:0}
+input:focus{border-color:var(--accent)}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;padding:calc(12px + var(--st)) calc(16px + var(--sr)) 12px calc(16px + var(--sl));background:linear-gradient(110deg,var(--t5) 0%,var(--t4) 55%,var(--t3) 100%);color:#fff;transition:background .6s}
+.logo{width:28px;height:28px;border-radius:9px;background:conic-gradient(from 200deg,var(--t1),var(--t2),var(--t3),var(--t4),var(--t5),var(--t1));box-shadow:0 0 0 2px rgba(255,255,255,.25);position:relative;flex:none}
+.logo::after{content:"";position:absolute;inset:8px;border-radius:50%;background:#fff}
+.brand b{font-size:19px;letter-spacing:-.02em;font-weight:800}
+.brand .bdate{font-size:13px;opacity:.85;font-weight:600}
+.hpad{padding:10px calc(14px + var(--sr)) 10px calc(14px + var(--sl))}
+.nav:empty{display:none}
+.row{display:flex;align-items:center;gap:8px}
+.grow{flex:1;min-width:0}
+.tabs{display:flex;background:var(--soft);border-radius:10px;padding:3px;border:1px solid var(--line)}
+.tabs button{flex:1;padding:7px 4px;border-radius:8px;font-weight:600;font-size:14px;color:var(--mute)}
+.tabs button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.nav{margin-top:10px}
+main.home{padding:0}
+.hero{position:relative;min-height:calc(100vh - 118px);min-height:calc(100dvh - 118px);overflow:hidden;color:#fff;display:flex;flex-direction:column}
+.hero{background:linear-gradient(180deg,var(--t5),var(--t4) 32%,var(--t3) 55%,var(--t2) 72%,var(--t1))}
+.slides{position:absolute;inset:0;overflow:hidden}
+.slide{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;opacity:0;transform:scale(1.02);transition:opacity 2.4s ease,transform 13s linear;will-change:opacity,transform}
+.slide.on{opacity:1;transform:scale(1.09)}
+.slide.out{opacity:0;transform:scale(1.09)}
+.slides::after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(var(--deep-rgb),.62) 0%,rgba(var(--tint-rgb),.25) 32%,rgba(var(--tint-rgb),.05) 50%,rgba(var(--tint-rgb),.45) 72%,rgba(var(--deep-rgb),.88) 100%)}
+.dots{display:flex;gap:5px;margin-top:12px}
+.dots i{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.4);transition:all .4s}
+.dots i.on{width:18px;background:#fff}
+@media (prefers-reduced-motion:reduce){.slide,.slide.on,.slide.out{transform:none;transition:opacity 1.2s ease}}
+.hero-in{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;padding:28px calc(20px + var(--sr)) 26px calc(20px + var(--sl));max-width:680px;width:100%;margin:0 auto}
+.hero-in .hr{display:flex;flex-direction:column}
+@media (orientation:landscape) and (min-width:640px){
+  .hero-in{max-width:none;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,1fr);column-gap:clamp(24px,4vw,56px);align-items:end;padding-top:24px}
+  .hero-in .spacer{display:none}
+  .hero-in .hl{align-self:center}
+  .hero h2{font-size:clamp(44px,7.5vw,88px)}
+}
+.hero .when{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.hero h2{font-size:clamp(40px,12vw,64px);line-height:.98;margin:10px 0 10px;font-weight:800;letter-spacing:-.035em;text-shadow:0 2px 24px rgba(var(--tint-rgb),.35)}
+.hero .greet{font-size:16px;opacity:.92;margin:0}
+.hero .line{font-size:14px;opacity:.8;margin:4px 0 0;font-style:italic}
+.glass{background:rgba(var(--deep-rgb),.30);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border-radius:18px;padding:14px 16px}
+.hero .spacer{flex:1;min-height:30px}
+.hero .glass .item{border-top-color:rgba(255,255,255,.18)}
+.hero .glass .item .d,.hero .glass .item .t .tm{color:rgba(255,255,255,.75)}
+.hero .glass .chk{border-color:#fff}
+.hero .glass .item.done .chk{background:#fff}
+.hero .glass .item.done .chk svg path{stroke:var(--camelot)}
+.hero .glass .item.missed .chk{border-color:#FFB3BC;background:transparent}
+.hero .glass .item.missed .chk svg path{stroke:#FFB3BC}
+.hero .glass .item.missed .t span:first-child{text-decoration-color:#FFB3BC}
+.hero .glass .mtag{color:#FFB3BC}
+.ghead{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.ghead b{font-size:15px}
+.ring{width:42px;height:42px;flex:none}
+.stats{display:flex;gap:10px;margin-top:10px}
+.stat{flex:1;text-align:left}
+.stat b{display:block;font-size:22px;letter-spacing:-.02em}
+.stat span{font-size:12px;opacity:.8}
+.hbtns{display:flex;gap:10px;margin-top:12px}
+.hbtn{flex:1;padding:13px;border-radius:14px;font-weight:700;font-size:15px;background:#fff;color:var(--bossa)}
+.hbtn.alt{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.35)}
+.gempty{opacity:.85;font-size:14px;padding:4px 0 2px}
+.nav h1{font-size:19px;margin:0;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--soft);font-size:18px;flex:none}
+.pill{padding:6px 11px;border-radius:999px;background:var(--soft);font-size:13px;font-weight:600;white-space:nowrap;border:1px solid var(--line)}
+.pill.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sub{color:var(--mute);font-size:13px}
+.banner{margin:10px calc(14px + var(--sr)) 0 calc(14px + var(--sl));padding:9px 12px;border-radius:10px;background:#fff4d6;color:#6b4e00;font-size:13px}
+@media (prefers-color-scheme:dark){.banner{background:#3a3010;color:#ffe08a}}
+main{padding:12px calc(14px + var(--sr)) 24px calc(14px + var(--sl))}
+.summary{display:flex;gap:10px;align-items:center;margin:0 0 12px}
+.bar{flex:1;height:6px;background:var(--soft);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--grad);background-size:200px 100%;border-radius:4px;transition:width .3s}
+.week{display:grid;gap:10px;grid-template-columns:1fr}
+@media (min-width:760px){.week{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}}
+.day{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px 8px}
+.day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.dh{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.dh b{font-size:16px}
+.dh .tag{font-size:11px;font-weight:700;color:#fff;background:var(--btn);padding:2px 7px;border-radius:999px}
+.add{width:30px;height:30px;border-radius:50%;background:var(--soft);font-size:20px;line-height:1;display:grid;place-items:center;color:var(--accent);font-weight:500}
+.item{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.chk{width:26px;height:26px;border-radius:50%;border:2px solid var(--c,var(--mute));flex:none;display:grid;place-items:center;transition:background .15s}
+.chk svg{opacity:0;width:14px;height:14px}
+.item.done .chk{background:var(--c,var(--done))}
+.item.done .chk svg{opacity:1}
+.item .body{flex:1;min-width:0;text-align:left}
+.item .t{font-weight:600;display:flex;gap:6px;align-items:baseline}
+.item .t .tm{font-weight:500;color:var(--mute);font-size:13px}
+.item .d{color:var(--mute);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item.done .t,.item.done .d{opacity:.5}
+.item.missed .chk{border-color:var(--danger)}
+.item.missed .chk svg{opacity:1}
+.item.missed .t,.item.missed .d{opacity:.55}
+.item.missed .t span:first-child{text-decoration:line-through;text-decoration-color:var(--danger);text-decoration-thickness:2px}
+.mtag{font-size:11px;font-weight:700;color:var(--danger);text-transform:uppercase;letter-spacing:.04em}
+.stat-row{display:flex;gap:8px;margin-top:6px}
+.stat-row .chip{flex:1;justify-content:center}
+.stat-row .chip.on.ms{background:var(--danger);border-color:var(--danger)}
+.none{color:var(--mute);font-size:13px;padding:6px 0 4px;display:block;width:100%;text-align:left}
+.wfoot{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:10px 14px;border-radius:10px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:14px}
+.btn.armed{background:var(--danger);color:#fff;border-color:var(--danger)}
+.month{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.mh,.mg{display:grid;grid-template-columns:repeat(7,1fr)}
+.mh div{font-size:11px;font-weight:700;color:var(--mute);text-align:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.cell{min-height:74px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px;text-align:left;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.cell:nth-child(7n){border-right:0}
+.cell.out{opacity:.35}
+.cell .n{font-size:12px;font-weight:700;width:22px;height:22px;display:grid;place-items:center;border-radius:50%}
+.cell.today .n{background:var(--accent);color:#fff}
+.cell.alldone{background:color-mix(in srgb,var(--sand) 18%,transparent)}
+.mi{font-size:10.5px;line-height:1.25;padding:1px 4px;border-radius:4px;background:color-mix(in srgb,var(--c) 18%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mi.dn{opacity:.5}
+.mi.ms{text-decoration:line-through;text-decoration-color:var(--danger);opacity:.6}
+.more{font-size:10.5px;color:var(--mute);padding-left:3px}
+.libcat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.libcat .lname{font-weight:700;font-size:16px;flex:1;background:transparent;border-color:transparent;padding:6px 8px}
+.libcat .lname:focus{background:var(--soft);border-color:var(--accent)}
+.swatch{width:26px;height:26px;border-radius:50%;flex:none;border:2px solid var(--card);box-shadow:0 0 0 1px var(--line)}
+.libgrp{margin:8px 0 0 4px;padding-left:10px;border-left:3px solid var(--soft)}
+.gname{font-weight:700;color:var(--ink);background:transparent;border-color:transparent;padding:4px 6px;flex:1}
+.gname:focus{background:var(--soft);border-color:var(--accent);color:var(--ink)}
+.x{width:28px;height:28px;border-radius:50%;color:var(--mute);font-size:17px;flex:none;display:grid;place-items:center}
+.x.armed{background:var(--danger);color:#fff;width:auto;padding:0 10px;border-radius:999px;font-size:12px;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0 2px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;border-radius:999px;background:var(--soft);border:1px solid var(--line);font-size:14px;font-weight:500}
+.chip.on{background:var(--c,var(--accent));border-color:var(--c,var(--accent));color:#fff}
+.chip.cat{font-weight:650}
+.chip.cat i{width:9px;height:9px;border-radius:50%;background:var(--c);display:inline-block}
+.chip.cat.on i{background:#fff}
+.chip.ed{padding:5px 4px 5px 12px}
+.chip.ed .x{width:22px;height:22px;font-size:14px}
+.chip.ed .x.armed{width:auto}
+.additem{width:120px;padding:6px 10px;border-radius:999px;font-size:14px}
+.link{color:var(--accent);font-weight:600;font-size:14px;padding:8px 4px 0}
+.newcat{width:100%;padding:12px}
+.sheet-wrap{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:flex-end}
+.sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+.sheet{position:relative;background:var(--bg);border-radius:18px 18px 0 0;max-height:90vh;display:flex;flex-direction:column;width:100%;max-width:640px;margin:0 auto;animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+.grab{width:38px;height:5px;border-radius:3px;background:var(--line);margin:8px auto 0}
+.sh-head{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 10px;border-bottom:1px solid var(--line)}
+.sh-head b{font-size:17px}
+.sh-head button{color:var(--accent);font-weight:600}
+.sh-body{overflow:auto;padding:6px 16px 16px;-webkit-overflow-scrolling:touch}
+.lbl{font-size:12px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 2px}
+.sh-foot{display:flex;gap:10px;padding:10px 16px calc(16px + var(--sb));border-top:1px solid var(--line)}
+.primary{flex:1;background:var(--btn);color:#fff;border-radius:12px;padding:13px;font-weight:700;font-size:16px}
+.primary:disabled{opacity:.4}
+.danger{color:var(--danger);font-weight:600;padding:13px 10px}
+.danger.armed{background:var(--danger);color:#fff;border-radius:12px;padding:13px 14px}
+.dows{display:flex;gap:6px;margin-top:6px}
+.dows button{flex:1;height:38px;border-radius:10px;background:var(--soft);border:1px solid var(--line);font-weight:700;font-size:13px}
+.dows button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+select{font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;z-index:40;max-width:90vw;text-align:center}
+.doclist{display:grid;gap:10px}
+.doccard{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:left;width:100%}
+.doccard .ic{width:46px;height:56px;border-radius:8px;flex:none;display:grid;place-items:end start;padding:6px;color:#fff;font-size:10px;font-weight:800;letter-spacing:.06em}
+.doccard b{display:block;font-size:16px}
+.doc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 24px;line-height:1.55;font-size:15px}
+.doc .doc-title{margin:-18px -18px 18px;padding:22px 18px 18px;border-radius:16px 16px 0 0;background:linear-gradient(120deg,var(--t5),var(--t4) 50%,var(--t3));color:#fff}
+.doc .doc-title h1{margin:2px 0 4px;font-size:28px;letter-spacing:-.02em;line-height:1.1}
+.doc .kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.doc .lead{margin:0;font-weight:600;opacity:.95}
+.doc .meta{margin:8px 0 0;font-size:13px;opacity:.85}
+.doc .motto{margin:10px 0 0;font-style:italic;color:var(--hi)}
+.doc h2{font-size:19px;margin:26px 0 8px;color:var(--accent);letter-spacing:-.01em}
+.doc h3{font-size:16px;margin:20px 0 6px}
+.doc h3.wk{padding:8px 12px;border-radius:10px;background:var(--soft);border-left:4px solid var(--terra)}
+.doc p{margin:8px 0}
+.doc ol{padding-left:22px}
+.doc li{margin:6px 0}
+.doc .tw{overflow-x:auto;margin:10px -6px;-webkit-overflow-scrolling:touch}
+.doc table{border-collapse:collapse;font-size:13px;min-width:560px}
+.doc th,.doc td{border-bottom:1px solid var(--line);padding:8px;vertical-align:top;text-align:left}
+.doc th{background:var(--soft)}
+.doc .term{padding:10px 0;border-bottom:1px solid var(--line)}
+.doc .term b{font-size:15px}
+.doc .term b.code{display:inline-block;background:var(--btn);color:#fff;border-radius:6px;padding:1px 8px;font-size:13px}
+.doc .term p{margin:4px 0 0}
+.doc .term .note{color:var(--mute);font-size:14px}
+.doc .decode{font-weight:800;font-size:17px;padding:10px 12px;background:var(--soft);border-radius:10px}
+.doc .fine{color:var(--mute);font-size:12px;margin-top:20px}
+.doclink{color:var(--accent);font-weight:600;font-size:13px;text-transform:none;letter-spacing:0;margin-left:8px}
+.tree{margin-top:16px;border-radius:14px;background:color-mix(in srgb,var(--c) 8%,transparent);padding:12px 12px 14px}
+.tree-head{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px}
+.tree-head i{width:11px;height:11px;border-radius:50%;background:var(--c);flex:none}
+.branch{margin:10px 0 0 5px;padding-left:16px;border-left:2px solid color-mix(in srgb,var(--c) 40%,transparent)}
+.branch .lbl{margin:0;position:relative}
+.branch .lbl::before{content:"";position:absolute;left:-16px;top:50%;width:10px;border-top:2px solid color-mix(in srgb,var(--c) 40%,transparent)}
+.pdfbar{display:flex;align-items:center;margin-bottom:10px}
+.pdf{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pdf img{display:block;width:100%;margin:0 0 10px;border-radius:8px;background:#fff;box-shadow:0 1px 6px rgba(43,26,53,.15)}
+.pdf.z img{width:230%;max-width:none}
+.datarow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ticker{padding:0 var(--sr) 0 var(--sl);display:flex;align-items:center;background:linear-gradient(90deg,var(--tick1),var(--tick2));color:var(--tick-ink);font-size:13px;font-weight:700;height:32px;overflow:hidden}
+.ticker .run{flex:1;overflow:hidden;white-space:nowrap;height:100%;display:flex;align-items:center;cursor:pointer;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.ticker .run span{display:inline-block;padding-left:100%;animation:tick 16s linear infinite}
+.ticker .x{color:var(--tick-ink);width:32px;height:32px;font-size:18px}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.ticker .run span{animation:none;padding-left:12px}}
+.appfoot{background:var(--deep);color:#E9DCE6;padding:28px calc(22px + var(--sr)) calc(28px + var(--sb)) calc(22px + var(--sl));position:relative}
+.appfoot::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad)}
+.appfoot .fin{max-width:900px;margin:0 auto;display:grid;gap:16px}
+.fbrand{display:flex;align-items:center;gap:10px}
+.fbrand b{font-size:18px;color:#fff;letter-spacing:-.02em}
+.fbrand .logo{width:24px;height:24px;border-radius:8px}
+.fbrand .logo::after{inset:7px}
+.ftag{margin:2px 0 0;font-style:italic;color:var(--hi);font-size:14px}
+.fnav{display:flex;flex-wrap:wrap;gap:6px 18px}
+.fnav button{color:#E9DCE6;font-size:14px;font-weight:600;padding:4px 0}
+.fmeta{font-size:13px;line-height:1.6;color:#B8A6BC}
+.fmeta b{color:#fff;font-weight:700}
+.fsmall{font-size:12px;color:#8C7B8F;border-top:1px solid rgba(255,255,255,.1);padding-top:14px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.toast{bottom:calc(24px + var(--sb))}
+.libtop{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.libcat.closed{padding:0}
+.lhead{display:flex;align-items:center;gap:12px;width:100%;padding:14px;text-align:left}
+.lhead b{display:block;font-size:16px}
+.lhead .swatch{display:inline-block}
+.chev{display:inline-block;font-size:24px;line-height:1;color:var(--mute);transition:transform .2s;padding:0 4px}
+.chev.on{transform:rotate(90deg)}
+.chevb{width:32px}
+.ghead{display:flex;align-items:center;gap:8px;width:100%;padding:8px 2px 8px 6px;text-align:left}
+.gtitle{font-weight:600;font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.ghead .cnt{font-size:12px;font-weight:700;color:var(--mute);background:var(--soft);border-radius:999px;padding:1px 8px}
+.ghead .chev{font-size:20px}
+.libgrp.open{padding-bottom:4px}
+.seg{display:flex;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:3px;margin:6px 0 8px}
+.seg button{flex:1;padding:8px;border-radius:8px;font-weight:700;font-size:14px;color:var(--mute)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.mini{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.mini span{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.phic{width:26px;height:26px;border-radius:8px;background:url(slides/florence.jpg) 45% 50%/cover;flex:none;box-shadow:0 0 0 1px var(--line)}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 4px}
+.pth{width:100%;aspect-ratio:1;border-radius:8px;background-size:cover;background-repeat:no-repeat;background-color:var(--soft);border:2px solid transparent}
+.pth.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.pth.add{display:grid;place-items:center;font-size:26px;color:var(--accent);border:2px dashed var(--line);cursor:pointer}
+.psel{background:var(--soft);border-radius:10px;padding:10px;margin:6px 0;display:grid;gap:8px}
+.chip .pc{opacity:.7;font-size:12px;margin-left:2px}
+.seg.small{margin:0}
+.seg.small button{padding:6px 10px;font-size:13px}
+.slides.nozoom .slide{transform:none!important}
+.tstrip{display:inline-flex;border-radius:6px;overflow:hidden;box-shadow:0 0 0 1px var(--line);flex:none;vertical-align:middle}
+.tstrip i{width:8px;height:22px;display:block}
+.lhead .tstrip i{width:6px;height:26px}
+.chip .tstrip i{width:5px;height:14px}
+.trow{display:flex;align-items:center;gap:10px;padding:8px 2px;border-top:1px solid var(--line)}
+.trow b{display:block;font-size:14px}
+.trow.hol{padding-left:12px;border-left:3px solid var(--accent)}
+.tauto{font-size:12px;font-weight:700;color:var(--mute);padding:6px 10px;border-radius:999px;background:var(--soft);border:1px solid var(--line)}
+.swatch{position:relative}
+.slotn{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.slotrow{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin-top:6px}
+.slotrow span{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,.4);box-shadow:0 0 0 1px var(--line)}
+.secdots{display:grid;grid-template-columns:1fr 1fr;gap:3px;width:26px;height:26px;flex:none}
+.secdots i{border-radius:50%;display:block}
+.dataic{width:26px;height:26px;border-radius:8px;background:var(--soft);color:var(--accent);display:grid;place-items:center;font-size:16px;font-weight:800;flex:none;box-shadow:0 0 0 1px var(--line)}
+.empty{padding:40px 0;text-align:center;color:var(--mute)}
+.daysheet .item{padding:11px 0}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="brand"><span class="logo"></span><b>Daybook</b><span class="grow"></span><span class="bdate" id="bdate"></span></div>
+  <div class="hpad">
+  <div class="tabs" id="tabs">
+    <button data-act="view" data-v="home">Home</button>
+    <button data-act="view" data-v="week">Week</button>
+    <button data-act="view" data-v="month">Month</button>
+    <button data-act="view" data-v="docs">Docs</button>
+    <button data-act="view" data-v="lib">Edit</button>
+  </div>
+  <div class="row nav" id="nav"></div>
+  </div>
+  <div id="ticker"></div>
+</header>
+<div id="banner"></div>
+<main id="main"><div class="empty">Loading your schedule...</div></main>
+<footer class="appfoot"><div class="fin">
+  <div><div class="fbrand"><span class="logo"></span><b>Daybook</b></div><p class="ftag">Make today yours.</p></div>
+  <nav class="fnav"><button data-act="view" data-v="home">Home</button><button data-act="view" data-v="week">Week</button><button data-act="view" data-v="month">Month</button><button data-act="view" data-v="docs">Docs</button><button data-act="view" data-v="lib">Edit</button><button data-act="backup">Back up data</button></nav>
+  <div class="fmeta">A Claude project by <b>Sean Jarnagin</b><br><span id="fstatus"></span></div>
+  <div class="fsmall"><span>&copy; 2026 Sean Jarnagin</span><span>Version 1.9 &middot; Atlanta, GA</span></div>
+</div></footer>
+</div>
+<div id="sheet"></div>
+<div id="toast"></div>
+
+<template id="doc-syllabus"><div class="doc-title"><div class="kicker">PHOTOGRAPHY SYLLABUS</div><h1>LIGHT &amp; LENS</h1><p class="lead">8-Week Light Mastery Cycle</p>
+<p class="meta">Nikon D7500 / D3400 | 8-Lens Kit | DJI Mini 2 | RAW Workflow</p><p class="motto">The lens serves the light. The light serves the story.</p><p class="meta">Organized by lighting scenario, not by lens.<br>2 long days/week (2-3 hours) | 2-3 short days/week (15-45 min)<br>Editing integrated, not deferred | Drone practice on weekends</p></div><h2 id="course-philosophy">Course Philosophy</h2>
+<p>The previous syllabus organized practice by lens. This one organizes by light. The difference matters: a lens rotation teaches you what glass can do. A light rotation teaches you what you can do with any glass in any condition. When you walk into a room, a venue, a landscape, the first question is never 'which lens?' It is 'where is the light, what is it doing, and how do I use it or change it?' The lens choice follows from that answer.</p>
+<p><strong>Your voice:</strong> You use light to create tension and narrative. You are drawn to selective illumination, silhouettes, dark negative space, and compositions where the viewer feels what is about to happen. This syllabus is designed to develop that voice while building the technical control to execute it reliably under any lighting condition.</p>
+<p><strong>The three pillars:</strong> (1) Light control - reading, shaping, and manipulating light with any tool available. This is the spine. (2) Viewer influence - understanding how composition, framing, and cropping direct emotion and attention. Woven into every assignment. (3) Lens fluency - knowing which lens to grab and why, earned through application under varied conditions rather than isolated rotation.</p>
+<h2 id="week-unit-schedule">8-Week Unit Schedule</h2>
+<p>Each week presents a lighting scenario. The assignments specify which lenses to use because certain lenses suit certain light. But the focus is the light, not the lens. By the end of the cycle, you will have worked every lens in your kit under the conditions that reveal its strengths and expose its limitations.</p>
+<h3 class="wk">Week 1: Window Light &amp; Indoor Natural</h3>
+<p><strong>Scenario:</strong> Soft directional light from windows. No artificial sources. Blinds, curtains, and time of day as your only modifiers.</p>
+<p><strong>Recommended Lenses:</strong> 50mm f/1.4 (portraits), Tokina 11-16mm (real estate interiors), 105mm Micro (detail/macro near windows)</p>
+<p><strong>Composition Focus:</strong> Frame subjects at the edge of light falloff. Place the brightest area where you want the viewer's eye. Practice negative space - let darkness occupy 40-60% of the frame.</p>
+<p><strong>Assignment:</strong> Shoot portraits of a person or cat positioned at varying distances from a window. Document how light quality changes as the subject moves 1ft, 3ft, 5ft from the glass. Separately, shoot one room of your house as a real estate interior using only window light - no lamps.</p>
+<h3 class="wk">Week 2: Golden Hour &amp; Backlight</h3>
+<p><strong>Scenario:</strong> The 45 minutes before sunset. Warm directional light. Backlighting with rim light and flare. The light you will shoot most client work in.</p>
+<p><strong>Recommended Lenses:</strong> 50mm f/1.4 (primary), 55-300mm (compressed backlit silhouettes), 35mm f/1.8 (environmental backlit portraits)</p>
+<p><strong>Composition Focus:</strong> Backlight separation - place the sun behind your subject and expose for the face. Use lens flare intentionally vs. avoiding it. Frame silhouettes where the shape tells the story without detail.</p>
+<p><strong>Assignment:</strong> Shoot a portrait session at golden hour. 3 frames backlit with rim light, 3 frames sidelit, 3 silhouettes. Separately, shoot a landscape at 200-300mm with silhouetted figures against the sunset. Compare how the 50mm and 300mm render the same backlit scene.</p>
+<h3 class="wk">Week 3: Harsh &amp; Overhead Light</h3>
+<p><strong>Scenario:</strong> Midday sun, direct overhead, hard shadows. The light most photographers avoid. You learn to use it or find shade within it.</p>
+<p><strong>Recommended Lenses:</strong> 35mm f/1.8 (street), 18-55mm kit zoom (versatility), Tokina 11-16mm (architecture shadows)</p>
+<p><strong>Composition Focus:</strong> Use shadows as compositional elements, not problems. Shadow lines as leading lines. Contrast between lit and unlit areas to direct attention. Hard light on texture (brick, concrete, bark).</p>
+<p><strong>Assignment:</strong> Shoot 10 frames where the shadow is the subject, not the object casting it. Shoot a portrait in open shade with harsh sun 2 feet behind the shade line - expose for the face, let the background blow. Shoot one architectural subject where the shadow pattern is more interesting than the building.</p>
+<h3 class="wk">Week 4: Overcast &amp; Diffused Light</h3>
+<p><strong>Scenario:</strong> Flat, even light. No shadows. No drama from the sky. The challenge is creating mood when nature gives you none. Also the most flattering portrait light.</p>
+<p><strong>Recommended Lenses:</strong> 50mm f/1.4 (portraits - use aperture for depth separation since light will not help), 105mm Micro (macro - overcast is ideal for detail work), Laowa 100mm 2:1 (extreme macro)</p>
+<p><strong>Composition Focus:</strong> Without light contrast to guide the eye, composition carries everything. Color contrast, texture contrast, and subject isolation through depth of field become your tools. Practice minimalism - fewer elements, stronger statement.</p>
+<p><strong>Assignment:</strong> Shoot a portrait session on an overcast day. Make the images feel moody despite flat light through composition and aperture choices alone. Separately, shoot macro work outdoors - overcast eliminates harsh reflections on small subjects. 10 frames with each macro lens, compare 1:1 vs 2:1 magnification.</p>
+<h3 class="wk">Week 5: Low Light &amp; Night</h3>
+<p><strong>Scenario:</strong> After sunset, indoor dim conditions, street lights, moonlight. High ISO territory. Tripod mandatory. This is where your camera's limits become real.</p>
+<p><strong>Recommended Lenses:</strong> 50mm f/1.4 (fastest glass, lowest ISO needed), 35mm f/1.8 (street at night), 200-500mm f/5.6 (moon, astrophotography), Tokina 11-16mm f/2.8 (night sky wide field)</p>
+<p><strong>Composition Focus:</strong> Light sources become subjects - street lamps, windows, car lights, the moon. Frame around points of light in darkness. Use long exposure to create light trails and star movement. Isolate illuminated subjects against dark negative space.</p>
+<p><strong>Assignment:</strong> Shoot a cityscape or street scene after dark with the 35mm - use available light only, push ISO and find your camera's noise ceiling. Separately, shoot the moon at 500mm on a tripod. Shoot a 20-second exposure of the night sky with the Tokina. Three completely different approaches to darkness in one session.</p>
+<h3 class="wk">Week 6: Mixed &amp; Artificial Light</h3>
+<p><strong>Scenario:</strong> Indoor scenes with multiple light sources at different color temperatures. Tungsten lamps, LED overhead, daylight from windows, all in one frame. The hardest white balance scenario.</p>
+<p><strong>Recommended Lenses:</strong> Tokina 11-16mm (real estate - this is the exact scenario you face in every property), 50mm f/1.4 (indoor portraits under mixed light), 18-55mm kit zoom (versatility for problem-solving)</p>
+<p><strong>Composition Focus:</strong> Identify the dominant light source and expose for it. Accept that mixed light means some areas will be warm and some cool - use that contrast intentionally rather than fighting it.</p>
+<p><strong>Assignment:</strong> Shoot a full real estate walkthrough of your house with every light on and every blind open. Set Kelvin manually and keep it consistent across all rooms. Separately, shoot a portrait under mixed lighting - one side of the face lit by warm lamp, other side by cool window. Make it look intentional, not accidental.</p>
+<h3 class="wk">Week 7: Practical &amp; Creative Light</h3>
+<p><strong>Scenario:</strong> You provide the light. Phone flashlight, headlamp, candles, colored materials, reflectors, speedlight. This is your voice week - dark mood, selective illumination, narrative tension.</p>
+<p><strong>Recommended Lenses:</strong> 50mm f/1.4 (portraits with dramatic practical light), 105mm Micro (illuminated details), 35mm f/1.8 (environmental scenes with creative lighting)</p>
+<p><strong>Composition Focus:</strong> Light only what matters. Let everything else fall to darkness. The viewer's eye goes where the light is - use that to tell a story. Practice light painting with long exposures. Color cast from materials to set mood.</p>
+<p><strong>Assignment:</strong> Pre-visualize 5 specific frames before touching the camera. Set each one up deliberately - choose the light position, the color, the exposure time. Separately, shoot a portrait lit only by a single practical light source (lamp, candle, phone). Make it feel cinematic, not accidental.</p>
+<h3 class="wk">Week 8: Client Simulation &amp; Field Test</h3>
+<p><strong>Scenario:</strong> No controlled conditions. You show up, assess the light, choose the lens, solve problems in real time. This week tests everything from weeks 1-7 under pressure.</p>
+<p><strong>Recommended Lenses:</strong> Bring your full kit. Choose the right lens for each scenario without being told which one to use.</p>
+<p><strong>Composition Focus:</strong> Apply everything. Every frame should demonstrate a deliberate lighting choice, a deliberate composition choice, and a deliberate lens choice. If you cannot articulate all three before pressing the shutter, do not press it.</p>
+<p><strong>Assignment:</strong> Three assignments: (1) Shoot a portrait session with a willing subject - direct them, manage the light, deliver 15-20 edited frames. (2) Shoot a complete real estate walkthrough of a property you have not previously photographed. (3) Shoot one creative personal project applying your voice - moody, narrative, tension-driven. Review all three sets and self-assess.</p>
+<h2 id="weekly-structure">Weekly Structure</h2>
+<p>You have two long days (2-3 hours each) and two to three short days (15-45 minutes each) per week. Editing is integrated into the schedule, not saved for Sunday. The backlog problem from the previous cycle ends here.</p>
+<div class="tw"><table>
+
+<tbody>
+<tr class="odd">
+<td><strong>Day Type</strong></td>
+<td><strong>Block</strong></td>
+<td><strong>Activity</strong></td>
+</tr>
+<tr class="even">
+<td><strong>Long Day (2x/week)</strong></td>
+<td>Shoot Block (60-90 min)</td>
+<td>Primary lighting scenario practice per weekly unit. Bring the recommended lenses. Shoot 20-40 intentional frames. Every frame has a named lighting decision and composition decision.</td>
+</tr>
+<tr class="odd">
+<td><strong>Long Day (2x/week)</strong></td>
+<td>Edit Block (45-60 min)</td>
+<td>Same day if possible, next day at latest. Cull to top 10, edit top 5, write one-sentence note per edited frame: what lighting choice did I make and did it work?</td>
+</tr>
+<tr class="even">
+<td><strong>Long Day (2x/week)</strong></td>
+<td>Drone Block (20-30 min)</td>
+<td>Weekend long day only. Flight practice, composition from altitude, understanding how aerial light differs from ground level. Log flight hours toward Part 107 comfort.</td>
+</tr>
+<tr class="odd">
+<td><strong>Short Day (2-3x/week)</strong></td>
+<td>Quick Shoot (15-45 min)</td>
+<td>One focused exercise from the weekly unit. 5-10 frames with one specific lighting challenge. Use whatever lens the scenario demands.</td>
+</tr>
+<tr class="even">
+<td><strong>Short Day (2-3x/week)</strong></td>
+<td>Quick Edit (15 min)</td>
+<td>Cull and rate previous session. Do not let the backlog grow past two sessions. If behind on editing, this is edit-only - no shooting.</td>
+</tr>
+</tbody>
+</table></div>
+<h3>The Backlog Rule</h3>
+<p>If you have more than two unprocessed shooting sessions, your next session is an edit session, not a shooting session. No exceptions. Shooting without reviewing is collecting data you never learn from. The feedback loop between shooting and editing is where skill compounds. Break the loop and you are just accumulating hard drive clutter.</p>
+<h3>Drone Practice</h3>
+<p>DJI Mini 2. Weekend long days only, 20-30 minutes per session. Focus on smooth flight, composition from altitude, and understanding how aerial perspective changes the relationship between foreground, midground, and background. Log every flight. Part 107 certification is in progress - until it is complete, no commercial use of aerial footage.</p>
+<h2 id="lens-reference">Lens Reference</h2>
+<p>Eight lenses. Each one has a role. This table is your field guide for deciding which lens to grab when you walk into a scenario.</p>
+<div class="tw"><table>
+
+<tbody>
+<tr class="odd">
+<td><strong>Lens</strong></td>
+<td><strong>Equiv.</strong></td>
+<td><strong>Role</strong></td>
+<td><strong>Notes</strong></td>
+</tr>
+<tr class="even">
+<td><strong>35mm f/1.8G DX</strong></td>
+<td>~52mm</td>
+<td>Street, environmental portraits, daily carry</td>
+<td>Your natural eye. Use when you want context and environment around the subject.</td>
+</tr>
+<tr class="odd">
+<td><strong>50mm f/1.4G FX</strong></td>
+<td>~75mm</td>
+<td>Portraits, low light, shallow DOF</td>
+<td>Your money lens for client work. Fastest glass in the kit. First choice for any portrait or low-light scenario.</td>
+</tr>
+<tr class="even">
+<td><strong>18-55mm f/3.5-5.6 VR DX</strong></td>
+<td>~27-82mm</td>
+<td>Versatile problem-solver</td>
+<td>When unsure which prime to grab, this lens finds the focal length first. Variable aperture limits low-light use.</td>
+</tr>
+<tr class="odd">
+<td><strong>Tokina 11-16mm f/2.8 CF DX</strong></td>
+<td>~16-24mm</td>
+<td>Real estate, landscape, architecture, night sky</td>
+<td>Your weakest lens compositionally. Requires strong foreground interest. Every real estate shoot starts here.</td>
+</tr>
+<tr class="even">
+<td><strong>55-300mm f/4.5-5.6G ED VR DX</strong></td>
+<td>~82-450mm</td>
+<td>Telephoto compression, wildlife, portraits</td>
+<td>Your natural strength. Compressed backgrounds, isolated subjects, mountain layers. Needs good light.</td>
+</tr>
+<tr class="odd">
+<td><strong>200-500mm f/5.6E VR FX</strong></td>
+<td>~300-750mm</td>
+<td>Wildlife, moon, extreme reach</td>
+<td>Specialist. Tripod or monopod mandatory. Use for subjects you cannot physically approach.</td>
+</tr>
+<tr class="even">
+<td><strong>Nikon 105mm f/2.8D Micro FX</strong></td>
+<td>~157mm</td>
+<td>Macro 1:1, ring detail, portraits</td>
+<td>Doubles as a portrait lens at 157mm equivalent. Primary macro for jewelry, rings, flowers, insects.</td>
+</tr>
+<tr class="odd">
+<td><strong>Laowa 100mm f/2.8 2:1 FX</strong></td>
+<td>~150mm</td>
+<td>Extreme macro 2:1</td>
+<td>Manual focus only. Double life-size magnification. For when 1:1 is not close enough.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="real-estate-integration">Real Estate Integration</h2>
+<p>Real estate photography is not a separate practice track. It is embedded in the weekly units where it belongs. Weeks 1, 3, 6, and 8 contain dedicated real estate assignments because those weeks present the lighting conditions you will encounter in actual property shoots: window light (Week 1), harsh contrast between interior and exterior (Week 3), mixed artificial and natural sources (Week 6), and the full simulation (Week 8).</p>
+<p><strong>Standard real estate settings:</strong> Tokina 11-16mm at f/7.1-f/9. Manual mode. ISO 100. Tripod at chest height. Manual Kelvin white balance locked for the entire property. HDR bracketing (-2, 0, +2) for rooms with bright windows. Virtual horizon on. Shoot from corners. Three walls visible. Stage before shooting.</p>
+<p>By the end of one 8-week cycle, you will have shot your own house under four different lighting conditions. By cycle two, you should be shooting other properties.</p>
+<h2 id="pre-session-protocol">Pre-Session Protocol</h2>
+<p>Before every shoot, answer these five questions. If you cannot answer all five, you are not ready to press the shutter.</p>
+<ol type="1">
+<li><p><strong>What is the light doing?</strong> Direction, quality (hard/soft), color temperature. Read it before raising the camera.</p></li>
+<li><p><strong>What story am I telling?</strong> What should the viewer feel when they see this frame? Name the emotion or narrative before composing.</p></li>
+<li><p><strong>Why this lens?</strong> Articulate why the lens on your camera right now is the right tool for this light and this story. If you cannot, switch.</p></li>
+<li><p><strong>What is in the background?</strong> Check behind your subject before pressing the shutter. Move if something competes with or distracts from your story.</p></li>
+<li><p><strong>What settings and why?</strong> Aperture, shutter, ISO. Each one should be a deliberate decision, not a default. If you are in auto-anything, know why.</p></li>
+</ol>
+<h2 id="progression-milestones">Progression Milestones</h2>
+<h3>Cycle 1 Complete (Week 8)</h3>
+<p>You can walk into any lighting scenario and identify the dominant light source, its direction, and its quality within 15 seconds. You know which lens to grab for each commercial scenario without deliberating. You can produce a consistent set of real estate images under mixed lighting. Your portrait work in golden hour is reliable. You have a growing body of personal work that reflects your voice - moody, narrative, tension-driven. Your editing backlog never exceeds two sessions.</p>
+<h3>Cycle 2 Complete (Week 16)</h3>
+<p>You can shape light, not just read it. Speedlight on camera and off camera is comfortable. You can manage a full portrait session directing a subject through poses, locations, and lighting changes. Your real estate work is consistent enough to show agents. Your drone footage is composed and smooth. Part 107 is complete. Your portfolio has enough depth to support a website launch.</p>
+<h3>Cycle 3 Complete (Week 24)</h3>
+<p>You are booking paid work. Engagement sessions, real estate listings, or second-shooting weddings. The camera and lighting decisions are invisible to you during a shoot - all of your attention is on the subject and the story. Your voice is recognizable across your portfolio. You are a photographer, not someone who owns a camera.</p>
+<h2 id="final-note">Final Note</h2>
+<p>The first syllabus taught you how to operate a camera. This one teaches you how to see. The difference between a technician and a photographer is that the technician executes settings and the photographer tells stories. You have the technical foundation. Now the work is learning to control the single most important variable in every photograph: light.</p>
+<p><strong>The lens is the instrument. Light is the music. Learn to hear it.</strong></p>
+</template>
+<template id="doc-nikkor"><div class="doc-title"><div class="kicker">Nikon</div><h1>NIKKOR Lens Nomenclature</h1><p class="lead">F-Mount Designation Reference</p></div><h2>Your Lenses Decoded</h2><div class="term"><b>AF-S NIKKOR 200-500mm f/5.6E ED VR</b><p>In-lens AF motor. FX format. 200-500mm zoom range. f/5.6 constant aperture. Electronic diaphragm (E). Extra-low dispersion glass. Vibration Reduction stabilization. No aperture ring.</p></div><div class="term"><b>AF-S NIKKOR 50mm f/1.4G</b><p>In-lens AF motor. FX format. 50mm prime. f/1.4 fast aperture. No aperture ring (G). On your DX body, acts like a 75mm portrait lens.</p></div><div class="term"><b>AF-S DX NIKKOR 35mm f/1.8G</b><p>In-lens AF motor. DX crop format - designed for your sensor. 35mm prime. f/1.8 fast aperture. No aperture ring. On DX, acts like a 52.5mm normal lens.</p></div><div class="term"><b>AF-P DX NIKKOR 18-55mm f/3.5-5.6G VR</b><p>Stepping motor AF (quiet, fast). DX format kit lens. Variable aperture zoom: f/3.5 at 18mm, f/5.6 at 55mm. No aperture ring. VR stabilization.</p></div><div class="term"><b>Tokina atx-i 11-16mm f/2.8 CF</b><p>Third-party (Tokina). DX ultra-wide zoom. Constant f/2.8 aperture. CF = Compact Focus. Uses body screw-drive AF motor - works on D7500.</p></div><div class="term"><b>AF NIKKOR 50mm f/1.8D</b><p>Body screw-drive AF (no in-lens motor). FX format. 50mm prime. f/1.8 aperture. D-type: has aperture ring + sends distance data. The &quot;nifty fifty&quot; classic.</p></div><h2>Quick Decision Guide</h2><div class="term"><b class="code">D vs G vs E</b><p>D has an aperture ring (lock it at smallest number). G removed the ring. E added electronic control for faster, more precise operation. Evolution: D -&gt; G -&gt; E.</p></div><div class="term"><b class="code">AF vs AF-S</b><p>Both are F-mount. AF relies on a motor in the camera body (shaft-driven). AF-S has its own motor - quieter, faster, works on every body including entry-level.</p></div><div class="term"><b class="code">DX on FX</b><p>Usable in DX crop mode (body auto-detects). You get fewer megapixels. FX on DX always works - you just use the center of the image circle.</p></div><h2>Focus Motor &amp; Mount Type</h2><div class="term"><b class="code">AI / AI-S</b><p>Manual focus. Mechanical aperture coupling to body meter. AI-S adds linear aperture response for program/shutter-priority modes.</p><p class="note">No autofocus. Aperture ring on lens.</p></div><div class="term"><b class="code">AF</b><p>Autofocus driven by the camera body&#x27;s screw-drive motor (via the coupling shaft in the mount). Requires a body with a built-in AF motor.</p><p class="note">D7500 has a body motor - these lenses will autofocus on it. Entry-level bodies (D3x00/D5x00) do not.</p></div><div class="term"><b class="code">AF-S</b><p>Silent Wave Motor built into the lens. Full-time manual focus override - turn the ring anytime without switching to M. Autofocuses on all Nikon bodies.</p><p class="note">Most common modern F-mount designation. Still F-mount, not a separate mount.</p></div><div class="term"><b class="code">AF-P</b><p>Stepping motor. Smoother, quieter, faster - optimized for video AF. Requires newer bodies for full menu control.</p><p class="note">D7500 fully compatible. Found on newer kit lenses (10-20mm, 18-55mm, 70-300mm).</p></div><div class="term"><b class="code">AF-I</b><p>Predecessor to AF-S. Internal coreless motor. Rare - only a few long telephoto lenses used this before AF-S replaced it.</p><p class="note">Obsolete. You won&#x27;t encounter these unless buying vintage superteles.</p></div><h2>Sensor Format</h2><div class="term"><b class="code">DX</b><p>Designed for crop-sensor bodies (23.5x15.6mm, 1.5x crop factor). Smaller image circle - will vignette heavily on full-frame bodies.</p><p class="note">Your D7500 is a DX body. DX lenses are native to it.</p></div><div class="term"><b class="code">FX</b><p>Designed for full-frame (36x24mm). Larger image circle covers both FX and DX sensors. On DX, the center is cropped, giving the 1.5x reach bonus.</p><p class="note">Your 50mm f/1.4 and 200-500mm f/5.6E are FX lenses working on your DX body.</p></div><h2>Aperture Control Type</h2><div class="term"><b class="code">D</b><p>Sends distance information to the body for 3D Matrix Metering and i-TTL flash. Has a physical aperture ring on the lens barrel.</p><p class="note">Set the ring to the smallest number (highest f-stop) and lock it - control aperture from the camera body dial.</p></div><div class="term"><b class="code">G</b><p>No aperture ring. Aperture is controlled entirely through the camera body command dial. Also sends distance data like D-type.</p><p class="note">The &quot;G&quot; effectively replaced the &quot;D&quot; designation. Most modern F-mount lenses are G-type.</p></div><div class="term"><b class="code">E</b><p>Electronic aperture control (electromagnetic diaphragm). No mechanical aperture lever - the body controls the aperture electronically via contacts.</p><p class="note">Found on newer pro lenses. Your 200-500mm f/5.6E uses this. More precise aperture control during bursts.</p></div><h2>Optical Element Codes</h2><div class="term"><b class="code">ED</b><p>Extra-low Dispersion glass. Reduces chromatic aberration (color fringing), especially at telephoto focal lengths.</p><p class="note">Very common on telephoto and zoom lenses. Look for this on anything over 70mm.</p></div><div class="term"><b class="code">FL</b><p>Fluorite lens element. Even lower dispersion than ED with less weight. Premium optical element found on high-end telephotos.</p><p class="note">Lighter than ED at the same correction quality. Seen on 500mm f/5.6E PF, 800mm f/5.6E FL.</p></div><div class="term"><b class="code">ASP</b><p>Aspherical lens element. Corrects spherical aberration and distortion, especially in wide-angle and wide-aperture lenses.</p><p class="note">Allows sharper performance with fewer total elements, keeping the lens lighter.</p></div><div class="term"><b class="code">N</b><p>Nano Crystal Coat. Nikon&#x27;s premium anti-reflective coating. Dramatically reduces ghosting and flare from point light sources.</p><p class="note">Found on pro-grade lenses. Gold &quot;N&quot; badge on the lens barrel.</p></div><div class="term"><b class="code">IF</b><p>Internal Focusing. The lens does not change physical length during focus. The front element stays stationary.</p><p class="note">Important for filters (polarizers won&#x27;t spin) and macro work (won&#x27;t bump the subject). Faster AF, better balance.</p></div><div class="term"><b class="code">RF</b><p>Rear Focusing. Focus group is at the back of the lens. Similar benefits to IF - fast, compact focus travel.</p><p class="note">Less common designation. Mostly seen on older AF tele lenses.</p></div><div class="term"><b class="code">CRC</b><p>Close-Range Correction. Floating element design optimizes sharpness at close focus distances, not just infinity.</p><p class="note">Found on some wide-angles and macro lenses. Improves near-subject performance.</p></div><div class="term"><b class="code">DC</b><p>Defocus Control. A ring on the lens controls the quality (not amount) of background or foreground blur.</p><p class="note">Only on 105mm f/2 DC and 135mm f/2 DC. Niche portrait lenses.</p></div><div class="term"><b class="code">PF</b><p>Phase Fresnel element. Uses diffraction to correct chromatic aberration instead of heavy ED/FL glass. Dramatically reduces size and weight.</p><p class="note">The 300mm f/4E PF and 500mm f/5.6E PF are remarkably portable superteles because of this.</p></div><h2>Stabilization</h2><div class="term"><b class="code">VR</b><p>Vibration Reduction. Optical image stabilization - a gyro-sensor detects shake and a floating lens group compensates in real time.</p><p class="note">Typically gives 3-4 stops of handheld advantage. Critical for telephoto, useful for video.</p></div><div class="term"><b class="code">VR II</b><p>Second-generation VR system. Improved stabilization performance - usually rated at 4+ stops of correction.</p><p class="note">Found on newer telephoto zooms like the 70-200mm f/2.8E FL ED VR.</p></div><h2>Specialty Designations</h2><div class="term"><b class="code">Micro</b><p>Nikon&#x27;s term for macro. Capable of at least 1:1 reproduction ratio (life-size on the sensor). Optimized for close-focus sharpness.</p><p class="note">Nikon says &quot;Micro&quot; where everyone else says &quot;Macro.&quot; Same thing.</p></div><div class="term"><b class="code">PC-E</b><p>Perspective Control with Electronic aperture. Tilt-shift lens for architecture and product photography. Corrects converging verticals.</p><p class="note">Manual focus only. Used in real estate and architectural work to keep buildings straight.</p></div><div class="term"><b class="code">TC</b><p>Teleconverter. Multiplies focal length (1.4x, 1.7x, or 2x) at the cost of light loss and some sharpness. Mounts between body and lens.</p><p class="note">TC-14E III (1.4x, loses 1 stop), TC-20E III (2x, loses 2 stops). Only works with certain AF-S/AF-I teles.</p></div><h2>Decoded Example</h2><p class="decode">AF-S VR Micro-NIKKOR 105mm f/2.8G IF-ED</p><div class="term row2"><b class="code">AF-S</b><p>Silent Wave Motor - in-lens AF, works on all bodies</p></div><div class="term row2"><b class="code">VR</b><p>Vibration Reduction optical stabilization</p></div><div class="term row2"><b class="code">Micro</b><p>Macro lens - 1:1 life-size reproduction</p></div><div class="term row2"><b class="code">105mm</b><p>Focal length (157.5mm equivalent on DX)</p></div><div class="term row2"><b class="code">f/2.8</b><p>Maximum aperture - how wide the diaphragm opens</p></div><div class="term row2"><b class="code">G</b><p>No aperture ring - body dial controls aperture</p></div><div class="term row2"><b class="code">IF</b><p>Internal Focusing - length stays fixed, front won&#x27;t spin</p></div><div class="term row2"><b class="code">ED</b><p>Extra-low Dispersion glass - reduces color fringing</p></div><p class="fine">NIKKOR &amp; Nikon are trademarks of Nikon Corporation. Reference compiled for personal use.</p></template>
+<script>
+/* ---------- defaults ---------- */
+const PALETTE=['#E56B5E','#BB405C','#F6A961','#583168','#843660','#C98A3B','#9E2F4E','#7A6A80','#A0705A'];
+const OLDC={'#e4572e':'#E56B5E','#2f6fed':'#BB405C','#00a6a6':'#F6A961','#9b5de5':'#583168','#f2a541':'#843660','#2e9e5b':'#C98A3B','#d6336c':'#9E2F4E','#6c757d':'#7A6A80','#8d6e63':'#A0705A'};
+const fixC=c=>OLDC[String(c||'').toLowerCase()]||c;
+const _rgb=h=>{h=String(h||'#888').replace('#','');return[0,2,4].map(i=>parseInt(h.substr(i,2),16)||0)};
+function nearestSlot(hex){const i=PALETTE.indexOf(hex);if(i>=0)return i;const a=_rgb(hex);let best=0,bd=1e9;PALETTE.forEach((p,j)=>{const b=_rgb(p),d=(a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2;if(d<bd){bd=d;best=j}});return best}
+const migrate=L=>{if(L&&L.cats)L.cats.forEach(c=>{c.color=fixC(c.color);if(typeof c.slot!=='number')c.slot=nearestSlot(c.color)});return L};
+const slotColors=()=>(THEMES[appliedTheme||'sunset']||THEMES.sunset).slots||PALETTE;
+const catColor=c=>{const sl=slotColors();return sl[(typeof c.slot==='number'?c.slot:nearestSlot(c.color))%sl.length]};
+const DEFAULT_LIB={cats:[
+ {id:'lift',name:'Lift',color:'#E56B5E',groups:[
+   {name:'Split',items:['Arm day','Triceps & shoulders','Chest','Back & biceps','Legs','Full body','Core']},
+   {name:'Recovery',items:['Mobility','Stretching']}]},
+ {id:'run',name:'Run',color:'#BB405C',groups:[
+   {name:'Easy',items:['Easy run','Recovery run','Strides']},
+   {name:'Quality',items:['Tempo','Intervals','Hill repeats','Fartlek']},
+   {name:'Long',items:['Long run']}]},
+ {id:'move',name:'Cardio & outdoors',color:'#F6A961',groups:[
+   {name:'Activity',items:['Walk','Hike','Climbing gym','Bike']}]},
+ {id:'photo',name:'Photography',color:'#583168',groups:[
+   {name:'Bodies & drone',items:['Nikon Z8','Nikon D7500','Nikon D3400','DJI Mini 2']},
+   {name:'Lenses',items:['Tokina 11-16mm f/2.8','18-55mm f/3.5-5.6 VR','35mm f/1.8G','50mm f/1.4G','50mm f/1.8D','55-300mm f/4.5-5.6 VR','200-500mm f/5.6E VR','105mm f/2.8D Micro','Laowa 100mm 2:1 macro']},
+   {name:'Light scenario',items:['Wk 1 Window light','Wk 2 Golden hour & backlight','Wk 3 Harsh & overhead','Wk 4 Overcast & diffused','Wk 5 Low light & night','Wk 6 Mixed & artificial','Wk 7 Practical & creative','Wk 8 Client simulation']},
+   {name:'Session',items:['Shoot block','Edit block','Quick shoot','Quick edit','Drone block']},
+   {name:'Technique',items:['Rim light / backlight','Silhouettes','Intentional flare','Negative space','Shadow as subject','Expose for the face','Aperture depth separation','Macro 1:1','Macro 2:1','Moon at 500mm','Night sky long exposure','Light trails','Light painting','Manual Kelvin white balance','HDR bracketing (-2/0/+2)','Directing a subject','Pre-visualize 5 frames']},
+   {name:'Subject',items:['Portrait','Cat','Real estate interior','Landscape','Street','Architecture','Macro detail','Moon / astro','Aerial']},
+   {name:'Lighting gear',items:['Godox kit','Speedlight','Reflector','Practical light (lamp, candle, phone)','Colored gels / materials']},
+   {name:'Post',items:['Cull to top 10','Edit top 5','Write frame notes','Lightroom edit','Flight log']}]},
+ {id:'it',name:'Italian',color:'#C98A3B',groups:[
+   {name:'Tutor (italki)',items:['Conversation session','Repair session (gap list)','Debate session','Grammar / writing session','Exam-format session']},
+   {name:'Reading',items:['Io non ho paura','Seta','Marcovaldo',"L'amica geniale",'Se questo è un uomo','Il deserto dei Tartari']},
+   {name:'Input & listening',items:['Slow-native podcast','Native podcast','Series (IT subtitles)','YouTube','No-subtitle content']},
+   {name:'Vocab',items:['Anki (10 min)','Mine cards from reading']},
+   {name:'Writing',items:['150-word journal','250-word opinion piece']},
+   {name:'Grammar repair',items:['Congiuntivo','Condizionale composto','Pronomi combinati','Prepositions','Passato remoto (reading)','Hypotheticals (se + cong.)']},
+   {name:'Practice & exam',items:['Language exchange (30 min)','Mock exam (timed)']},
+   {name:'Milestones',items:['Demo recording','Gate assessment','Sunday review','Monthly gap-list review']}]},
+ {id:'uk',name:'Ukrainian',color:'#9E2F4E',groups:[
+   {name:'Core',items:['Pimsleur lesson','Ukrainian Lessons Podcast']},
+   {name:'Vocab',items:['Anki reviews + 10 new','Cards from error log','Cards mined from input']},
+   {name:'Ear & mouth',items:['Minimal-pair drills','Shadowing (sentence)','Shadowing (paragraph)','Shadowing (intonation)','Weekly shadowing recording']},
+   {name:'Tutor (italki)',items:['Tutor session','Accent session']},
+   {name:'Input',items:['YouTube (UA subtitles)','Learner podcast','Easy-Ukrainian news','Graded reader']},
+   {name:'Writing',items:['Journal (8-10 sentences)']},
+   {name:'Conversation',items:['Friend call / voice notes','Conversation club']},
+   {name:'Milestones',items:['Demo video','Comprehension checkpoint','Gate assessment','Sunday review']}]},
+ {id:'study',name:'Study',color:'#843660',groups:[
+   {name:'Finance',items:['Derivatives','Fixed income','Attribution']},
+   {name:'Other',items:['Reading','Course work']}]}
+],v:6};
+const LIB_VER=6;
+const FAM={id:'fam',name:'Family & Friends',color:'#A0705A',groups:[
+   {name:'Family',items:['Family dinner','Call home','Visit parents']},
+   {name:'Friends',items:['Dinner out','Game night','Catch-up call']},
+   {name:'Events',items:['Birthday party','Wedding','Holiday gathering']}]};
+DEFAULT_LIB.cats.push(JSON.parse(JSON.stringify(FAM)));
+const HOMEK={id:'homek',name:'Homekeeping',color:'#F6A961',groups:[
+   {name:'Area',items:['Upstairs','Downstairs','Basement','Garage','Porch','Front Yard','Back Yard','Driveway/Pathways']},
+   {name:'Floors',items:['Vacuum','Mop','Sweep','Spot-clean carpet & rugs']},
+   {name:'Dust & wipe',items:['Dust surfaces','Dust ceiling fans','Dust blinds & baseboards','Wipe counters & tables','Clean mirrors & glass','Wipe handles & switches']},
+   {name:'Tidy',items:['Declutter','Put things away','Laundry','Change sheets','Empty trash & recycling']},
+   {name:'Kitchen & bath',items:['Clean sink','Clean toilet','Scrub shower / tub','Wipe appliances','Clean out fridge']},
+   {name:'Outdoor',items:['Mow','Edge & trim','Rake leaves','Pull weeds','Sweep / blow pathways','Pressure wash','Water plants']},
+   {name:'Deep clean',items:['Wash windows','Replace HVAC filter','Clean vents','Clean behind furniture','Organize storage']}]};
+DEFAULT_LIB.cats.push(JSON.parse(JSON.stringify(HOMEK)));
+const RESP={id:'resp',name:'Responsibilities',color:'#BB405C',groups:[
+   {name:'Financials and bills',items:['Pay rent','Electric','Gas','Water & sewer','Internet','Phone','Renters insurance','Car insurance','Credit card payment','Car payment','Student loan']},
+   {name:'Subscriptions',items:['Adobe Lightroom','Website hosting & domain','Claude','Pimsleur','italki tutoring','Streaming','Gym membership','Cloud storage','Review & cancel unused']},
+   {name:'Money tasks',items:['Review budget','Track spending','Move money to savings','Retirement / brokerage contribution','Reconcile accounts','Check credit report']},
+   {name:'Annual & occasional',items:['Taxes','Car registration & tag','Vehicle maintenance','Pet care / vet','Wedding vendor payment','FAA drone registration','Gifts & holidays']},
+   {name:'Life admin',items:['Mail & paperwork','Doctor / dentist appointment','Lease renewal','Update passwords']}]};
+DEFAULT_LIB.cats.push(JSON.parse(JSON.stringify(RESP)));
+function upgrade(L){
+  if(!L||!L.cats)return false;const v=L.v||1;if(v>=LIB_VER)return false;
+  const D=DEFAULT_LIB,dp=D.cats.find(c=>c.id==='photo'),p=L.cats.find(c=>c.id==='photo');
+  if(v<2){
+  if(!p)L.cats.push(clone(dp));else{
+    const ren={'bodies':'Bodies & drone','lighting':'Lighting gear'},drop=new Set(['100mm','Natural light','Real estate interiors','Landscape','Pet / portrait','Culling']);
+    p.groups.forEach(g=>{const r=ren[g.name.toLowerCase()];if(r)g.name=r;g.items=g.items.filter(x=>!drop.has(x))});
+    const out=[];
+    for(const dg of dp.groups){const g=p.groups.find(x=>x.name.toLowerCase()===dg.name.toLowerCase());
+      if(g){dg.items.forEach(i=>{if(!g.items.includes(i))g.items.push(i)});out.push(g)}else out.push(clone(dg))}
+    p.groups.forEach(g=>{if(!out.includes(g)&&g.items.length)out.push(g)});p.groups=out;
+  }
+  const st=L.cats.find(c=>c.id==='study');
+  if(st)st.groups=st.groups.filter(g=>!(g.name.toLowerCase()==='languages'&&g.items.every(i=>['Italian','Ukrainian'].includes(i))));
+  }
+  if(v<3){
+    const add=['it','uk'].filter(id=>!L.cats.find(c=>c.id===id)).map(id=>clone(D.cats.find(c=>c.id===id)));
+    const li=L.cats.findIndex(c=>c.id==='lang');
+    if(li>=0)L.cats.splice(li,1,...add);else{const si=L.cats.findIndex(c=>c.id==='study');L.cats.splice(si>=0?si:L.cats.length,0,...add)}
+  }
+  if(v<4){
+    const ex=L.cats.find(c=>c.id==='fam'||c.name.trim().toLowerCase()==='family & friends');
+    if(!ex)L.cats.push(clone(FAM));else{
+      for(const fg of FAM.groups){const g=ex.groups.find(x=>x.name.trim().toLowerCase()===fg.name.toLowerCase());
+        if(g){fg.items.forEach(i=>{if(!g.items.includes(i))g.items.push(i)})}else ex.groups.push(clone(fg))}
+    }
+  }
+  if(v<5){
+    let h=L.cats.find(c=>c.id==='homek'||c.name.trim().toLowerCase()==='homekeeping');
+    if(!h)L.cats.push(clone(HOMEK));else{
+      const low=x=>x.trim().toLowerCase();
+      // a group named "Upstairs" that holds the other areas becomes "Area"
+      const up=h.groups.find(g=>low(g.name)==='upstairs'&&g.items.some(i=>low(i)==='downstairs'));
+      if(up&&!h.groups.some(g=>low(g.name)==='area')){up.name='Area';if(!up.items.some(i=>low(i)==='upstairs'))up.items.unshift('Upstairs')}
+      for(const hg of HOMEK.groups){const g=h.groups.find(x=>low(x.name)===low(hg.name));
+        if(g){hg.items.forEach(i=>{if(!g.items.some(x=>low(x)===low(i)))g.items.push(i)})}else h.groups.push(clone(hg))}
+      const ai=h.groups.findIndex(g=>low(g.name)==='area');if(ai>0)h.groups.unshift(h.groups.splice(ai,1)[0]);
+    }
+  }
+  if(v<6){
+    const low=x=>x.trim().toLowerCase();
+    let r=L.cats.find(c=>c.id==='resp'||low(c.name)==='responsibilities');
+    if(!r)L.cats.push(clone(RESP));else{
+      for(const rg of RESP.groups){const g=r.groups.find(x=>low(x.name)===low(rg.name));
+        if(g){rg.items.forEach(i=>{if(!g.items.some(x=>low(x)===low(i)))g.items.push(i)})}else r.groups.push(clone(rg))}
+    }
+  }
+  L.v=LIB_VER;return true;
+}
+
+/* ---------- themes ---------- */
+const THEMES={
+  sunset:{name:'Sunset',sw:['#F6A961','#E56B5E','#BB405C','#843660','#583168'],v:{},slots:['#E56B5E','#BB405C','#F6A961','#583168','#843660','#C98A3B','#9E2F4E','#7A6A80','#3F5E9C']},
+  usa:{name:'Stars & Stripes',sw:['#780000','#C1121F','#FDF0D5','#003049','#669BBC'],slots:['#C1121F','#780000','#669BBC','#003049','#33557A','#B8A07A','#E0525C','#6B7A86','#1F5FAD'],v:{'--t1':'#669BBC','--t2':'#FDF0D5','--t3':'#C1121F','--t4':'#780000','--t5':'#003049',
+    '--deep':'#001E2E','--deep-rgb':'0,30,46','--tint-rgb':'0,48,73','--tick1':'#FDF0D5','--tick2':'#669BBC','--tick-ink':'#003049','--hi':'#FDF0D5',
+    '--accent-l':'#C1121F','--accent-d':'#669BBC','--done-l':'#003049','--done-d':'#669BBC','--btn':'linear-gradient(100deg,#C1121F,#780000)'}},
+  halloween:{name:'Witchy Halloween',sw:['#FFF7E2','#F68F4D','#7F5FA8','#A995C8','#000000'],slots:['#F68F4D','#7F5FA8','#A995C8','#2B2233','#5E4485','#D9622B','#C4A484','#6E6A75','#7CD11A'],v:{'--t1':'#F68F4D','--t2':'#A995C8','--t3':'#7F5FA8','--t4':'#3E2A5A','--t5':'#0E0A12',
+    '--deep':'#0B0810','--deep-rgb':'11,8,16','--tint-rgb':'62,42,90','--tick1':'#FFF7E2','--tick2':'#F68F4D','--tick-ink':'#0E0A12','--hi':'#F68F4D',
+    '--accent-l':'#7F5FA8','--accent-d':'#F68F4D','--done-l':'#7F5FA8','--done-d':'#F68F4D','--btn':'linear-gradient(100deg,#D9622B,#7F5FA8)'}},
+  juneteenth:{name:'Juneteenth',sw:['#A94233', '#D1A83E', '#346136', '#242424', '#000000'],slots:['#A94233', '#346136', '#D1A83E', '#242424', '#5A8A4A', '#B8862B', '#C9665A', '#6B6B6B', '#7A3A1E'],v:{'--t1':'#D1A83E','--t2':'#A94233','--t3':'#346136','--t4':'#242424','--t5':'#000000','--deep':'#121212','--deep-rgb':'18,18,18','--tint-rgb':'52,97,54','--tick1':'#E8CD7E','--tick2':'#D1A83E','--tick-ink':'#121212','--hi':'#D1A83E','--accent-l':'#A94233','--accent-d':'#D1A83E','--done-l':'#346136','--done-d':'#D1A83E','--btn':'linear-gradient(100deg,#A94233,#346136)'}},
+  cinco:{name:'Cinco de Mayo',sw:['#FEE42F', '#FF6711', '#DE2C9E', '#E51509', '#389D11'],slots:['#E51509', '#DE2C9E', '#FF6711', '#1E5A0B', '#389D11', '#E0B800', '#F07DC2', '#7A5C3E', '#0FA3B1'],v:{'--t1':'#FEE42F','--t2':'#FF6711','--t3':'#DE2C9E','--t4':'#E51509','--t5':'#1E5A0B','--deep':'#163F08','--deep-rgb':'22,63,8','--tint-rgb':'120,20,80','--tick1':'#FEE42F','--tick2':'#FF6711','--tick-ink':'#2A1A00','--hi':'#FEE42F','--accent-l':'#C8248A','--accent-d':'#FEE42F','--done-l':'#389D11','--done-d':'#FEE42F','--btn':'linear-gradient(100deg,#E51509,#DE2C9E)'}},
+  stpat:{name:'Clover',sw:['#97C83A', '#C8E297', '#046B3A', '#597721', '#1E2B1C'],slots:['#046B3A', '#597721', '#97C83A', '#1E2B1C', '#2E8B57', '#C9A227', '#7FB069', '#5E6B5A', '#8B6B3E'],v:{'--t1':'#C8E297','--t2':'#97C83A','--t3':'#597721','--t4':'#046B3A','--t5':'#1E2B1C','--deep':'#141D13','--deep-rgb':'20,29,19','--tint-rgb':'4,107,58','--tick1':'#C8E297','--tick2':'#97C83A','--tick-ink':'#1E2B1C','--hi':'#97C83A','--accent-l':'#046B3A','--accent-d':'#97C83A','--done-l':'#597721','--done-d':'#97C83A','--btn':'linear-gradient(100deg,#3C8D2F,#046B3A)'}},
+  valentine:{name:'Valentine',sw:['#F5C7E4', '#EA407E', '#EA404B', '#C5291C'],slots:['#EA404B', '#EA407E', '#F08DBE', '#6E1420', '#C5291C', '#B5527A', '#F4A3A8', '#8C6E78', '#9E3B5A'],v:{'--t1':'#F5C7E4','--t2':'#EA404B','--t3':'#EA407E','--t4':'#C5291C','--t5':'#6E1420','--deep':'#3A0A12','--deep-rgb':'58,10,18','--tint-rgb':'110,20,32','--tick1':'#F5C7E4','--tick2':'#EA407E','--tick-ink':'#3A0A12','--hi':'#F5C7E4','--accent-l':'#C5291C','--accent-d':'#EA407E','--done-l':'#EA407E','--done-d':'#F5C7E4','--btn':'linear-gradient(100deg,#EA407E,#C5291C)'}},
+  easter:{name:'Pastel Easter',sw:['#F2CFED', '#DDCDFA', '#CAEEFA', '#E1F8B0', '#FBEBB7'],slots:['#D98BCB', '#9A84D6', '#5FB3D3', '#6A58A8', '#8DBF3F', '#E2B53E', '#E6A3C9', '#8A8FA3', '#B08968'],v:{'--t1':'#FBEBB7','--t2':'#F2CFED','--t3':'#C276B4','--t4':'#9A6FB8','--t5':'#6A58A8','--deep':'#2E2547','--deep-rgb':'46,37,71','--tint-rgb':'106,88,168','--tick1':'#CAEEFA','--tick2':'#E1F8B0','--tick-ink':'#2E2547','--hi':'#FBEBB7','--accent-l':'#8A5FB0','--accent-d':'#DDCDFA','--done-l':'#6A58A8','--done-d':'#CAEEFA','--btn':'linear-gradient(100deg,#C276B4,#6A58A8)'}},
+  thanks:{name:'Harvest',sw:['#9C2F2F','#B6562A','#DBBA33','#633F21','#511F16'],slots:['#9C2F2F','#B6562A','#DBBA33','#511F16','#633F21','#C9962B','#C76B5A','#7D6A55','#4F6B3A'],v:{'--t1':'#DBBA33','--t2':'#B6562A','--t3':'#9C2F2F','--t4':'#633F21','--t5':'#511F16','--deep':'#2E120C','--deep-rgb':'46,18,12','--tint-rgb':'99,63,33','--tick1':'#EBD27A','--tick2':'#DBBA33','--tick-ink':'#2E120C','--hi':'#DBBA33','--accent-l':'#9C2F2F','--accent-d':'#DBBA33','--done-l':'#633F21','--done-d':'#DBBA33','--btn':'linear-gradient(100deg,#B6562A,#9C2F2F)'}},
+  christmas:{name:'Christmas',sw:['#B27F49','#A0061B','#28604C','#3E5647','#1A2821'],slots:['#A0061B','#28604C','#B27F49','#1A2821','#3E5647','#D4A84A','#D9455A','#7A8A80','#4A7FA0'],v:{'--t1':'#D4A84A','--t2':'#B27F49','--t3':'#A0061B','--t4':'#28604C','--t5':'#1A2821','--deep':'#111B16','--deep-rgb':'17,27,22','--tint-rgb':'40,96,76','--tick1':'#E3C489','--tick2':'#B27F49','--tick-ink':'#1A2821','--hi':'#D4A84A','--accent-l':'#A0061B','--accent-d':'#D4A84A','--done-l':'#28604C','--done-d':'#D4A84A','--btn':'linear-gradient(100deg,#A0061B,#28604C)'}},
+  may:{name:'July Poppies',sw:['#6FB1D1','#FBEB4E','#ED8733','#C55724','#E4444E'],slots:['#E4444E','#2F7DA6','#ED8733','#1E4E6B','#C55724','#D9B300','#6FB1D1','#7A8A94','#4FA05A'],v:{'--t1':'#FBEB4E','--t2':'#ED8733','--t3':'#E4444E','--t4':'#2F7DA6','--t5':'#1E4E6B','--deep':'#123447','--deep-rgb':'18,52,71','--tint-rgb':'47,125,166','--tick1':'#FBEB4E','--tick2':'#ED8733','--tick-ink':'#123447','--hi':'#FBEB4E','--accent-l':'#C55724','--accent-d':'#FBEB4E','--done-l':'#2F7DA6','--done-d':'#6FB1D1','--btn':'linear-gradient(100deg,#E4444E,#C55724)'}},
+  july:{name:'June Beach',sw:['#429293','#60BFAB','#EEE3DF','#E9BBAB','#D3907D'],slots:['#429293','#D3907D','#60BFAB','#1F5859','#B86F5C','#D9A441','#E9A89A','#7A8C8C','#3E7CB1'],v:{'--t1':'#E9BBAB','--t2':'#60BFAB','--t3':'#D3907D','--t4':'#429293','--t5':'#1F5859','--deep':'#143E3F','--deep-rgb':'20,62,63','--tint-rgb':'66,146,147','--tick1':'#EEE3DF','--tick2':'#60BFAB','--tick-ink':'#143E3F','--hi':'#E9BBAB','--accent-l':'#2F7A7B','--accent-d':'#60BFAB','--done-l':'#429293','--done-d':'#60BFAB','--btn':'linear-gradient(100deg,#B86F5C,#2F7A7B)'}},
+  august:{name:'August Shore',sw:['#393631','#79A5B2','#D3BE91','#A6855A','#55432D'],slots:['#2F6E80','#A6855A','#79A5B2','#393631','#55432D','#C9A15A','#D17A5A','#8A8478','#2E9C8F'],v:{'--t1':'#D3BE91','--t2':'#79A5B2','--t3':'#A6855A','--t4':'#55432D','--t5':'#393631','--deep':'#26231F','--deep-rgb':'38,35,31','--tint-rgb':'85,67,45','--tick1':'#D3BE91','--tick2':'#79A5B2','--tick-ink':'#26231F','--hi':'#D3BE91','--accent-l':'#2F6E80','--accent-d':'#79A5B2','--done-l':'#2F6E80','--done-d':'#79A5B2','--btn':'linear-gradient(100deg,#8C6B42,#55432D)'}},
+  february:{name:'February Blush',sw:['#D1D8D0','#DF8AA7','#FFD0D5','#ECEDED','#E0BDD0','#FFACB4'],slots:['#C96F8E','#7E9A7B','#E58C96','#8E4A66','#A884B8','#D9A441','#B8607F','#8A8A8A','#5B8DB8'],v:{'--t1':'#FFD0D5','--t2':'#FFACB4','--t3':'#DF8AA7','--t4':'#B8607F','--t5':'#8E4A66','--deep':'#4A2636','--deep-rgb':'74,38,54','--tint-rgb':'142,74,102','--tick1':'#FFD0D5','--tick2':'#DF8AA7','--tick-ink':'#4A2636','--hi':'#FFD0D5','--accent-l':'#B8607F','--accent-d':'#DF8AA7','--done-l':'#B8607F','--done-d':'#DF8AA7','--btn':'linear-gradient(100deg,#C96F8E,#8E4A66)'}},
+  september:{name:'September Harvest',sw:['#B87B5C','#F4DDB8','#8F9562','#90533B','#DA983C','#495235'],slots:['#90533B','#495235','#DA983C','#2F3522','#8F9562','#B87B5C','#C96A4A','#7D7A6A','#4C6E8A'],v:{'--t1':'#F4DDB8','--t2':'#DA983C','--t3':'#B87B5C','--t4':'#90533B','--t5':'#495235','--deep':'#23281A','--deep-rgb':'35,40,26','--tint-rgb':'73,82,53','--tick1':'#F4DDB8','--tick2':'#DA983C','--tick-ink':'#23281A','--hi':'#DA983C','--accent-l':'#90533B','--accent-d':'#DA983C','--done-l':'#495235','--done-d':'#DA983C','--btn':'linear-gradient(100deg,#90533B,#495235)'}},
+  newyear:{name:'Black & Gold',sw:['#D9B01C','#CC9900','#B8860B','#333333','#1C1C1C','#090909'],slots:['#B8860B','#333333','#D9B01C','#090909','#6B6B6B','#CC9900','#A8A8A8','#4D4D4D','#3E5C8A'],v:{'--t1':'#D9B01C','--t2':'#CC9900','--t3':'#B8860B','--t4':'#333333','--t5':'#1C1C1C','--deep':'#090909','--deep-rgb':'9,9,9','--tint-rgb':'51,51,51','--tick1':'#D9B01C','--tick2':'#B8860B','--tick-ink':'#090909','--hi':'#D9B01C','--accent-l':'#8C6A08','--accent-d':'#D9B01C','--done-l':'#333333','--done-d':'#D9B01C','--btn':'linear-gradient(100deg,#B8860B,#333333)'}},
+  autumn:{name:'Autumn',sw:['#DAA267','#F2C99D','#CF8578','#95575A','#76808A'],slots:['#95575A','#CF8578','#DAA267','#4E5660','#76808A','#C9922E','#B5464B','#E3A99B','#6B7F5A'],v:{'--t1':'#F2C99D','--t2':'#DAA267','--t3':'#CF8578','--t4':'#95575A','--t5':'#4E5660','--deep':'#2A2226','--deep-rgb':'42,34,38','--tint-rgb':'149,87,90','--tick1':'#F2C99D','--tick2':'#DAA267','--tick-ink':'#2A2226','--hi':'#F2C99D','--accent-l':'#95575A','--accent-d':'#DAA267','--done-l':'#95575A','--done-d':'#DAA267','--btn':'linear-gradient(100deg,#B86A5E,#95575A)'}},
+  june:{name:'May Seaglass',sw:['#EEEEEE','#1E517B','#FD9B7B','#7DFEE3','#39B197'],slots:['#1E517B','#2A8C77','#F07D5A','#39B197','#4F86B5','#E0A43A','#C9607A','#7A8A94','#5B4E9A'],v:{'--t1':'#7DFEE3','--t2':'#FD9B7B','--t3':'#39B197','--t4':'#1E517B','--t5':'#143A5A','--deep':'#0E2A40','--deep-rgb':'14,42,64','--tint-rgb':'30,81,123','--tick1':'#7DFEE3','--tick2':'#FD9B7B','--tick-ink':'#0E2A40','--hi':'#7DFEE3','--accent-l':'#1E517B','--accent-d':'#7DFEE3','--done-l':'#2A8C77','--done-d':'#7DFEE3','--btn':'linear-gradient(100deg,#2A8C77,#1E517B)'}},
+  spring:{name:'Green Spring',sw:['#D4E185','#A4D65D','#5F9351','#9DBE93','#DAADC4','#C778A8'],slots:['#5F9351','#C778A8','#A4D65D','#2F4F2A','#7FA872','#C9B84A','#D893B6','#7D8C79','#8E4F7E'],v:{'--t1':'#D4E185','--t2':'#A4D65D','--t3':'#C778A8','--t4':'#5F9351','--t5':'#2F4F2A','--deep':'#1D2E1A','--deep-rgb':'29,46,26','--tint-rgb':'63,107,54','--tick1':'#D4E185','--tick2':'#DAADC4','--tick-ink':'#1D2E1A','--hi':'#D4E185','--accent-l':'#4E7F43','--accent-d':'#A4D65D','--done-l':'#5F9351','--done-d':'#A4D65D','--btn':'linear-gradient(100deg,#5F9351,#C778A8)'}},
+  jan:{name:'January',sw:['#CCCCCC', '#9FB2B0', '#6C7888', '#41466C', '#49395E'],slots:['#6C7888', '#41466C', '#7FA09D', '#49395E', '#5E8B88', '#8C8C8C', '#7D6E9A', '#B0A08A', '#2F3E46'],v:{'--t1':'#CCCCCC','--t2':'#9FB2B0','--t3':'#6C7888','--t4':'#41466C','--t5':'#49395E','--deep':'#1F1C2B','--deep-rgb':'31,28,43','--tint-rgb':'65,70,108','--tick1':'#CCCCCC','--tick2':'#9FB2B0','--tick-ink':'#1F1C2B','--hi':'#BFD0CE','--accent-l':'#41466C','--accent-d':'#9FB2B0','--done-l':'#49395E','--done-d':'#9FB2B0','--btn':'linear-gradient(100deg,#6C7888,#41466C)'}}
+};
+const TVARS=[...new Set(Object.values(THEMES).flatMap(t=>Object.keys(t.v)))];
+const _d=(y,m,d)=>new Date(y,m-1,d);
+const _add=(dt,n)=>{const x=new Date(dt);x.setDate(x.getDate()+n);return x};
+const nthDow=(y,m,dow,n)=>{if(n>0){const f=_d(y,m,1);return _d(y,m,1+((dow-f.getDay()+7)%7)+7*(n-1))}const l=new Date(y,m,0);return _d(y,m,l.getDate()-((l.getDay()-dow+7)%7))};
+function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return _d(y,mo,da)}
+const HOLIDAYS=[
+  {key:'newyear',name:"New Year's",theme:'newyear',win:y=>[_d(y,12,31),_d(y+1,1,2)]},
+  {key:'valentine',name:"Valentine's Day",theme:'valentine',win:y=>[_d(y,2,10),_d(y,2,14)]},
+  {key:'stpat',name:"St. Patrick's Day",theme:'stpat',win:y=>[_d(y,3,14),_d(y,3,17)]},
+  {key:'easter',name:'Easter',theme:'easter',win:y=>{const e=easter(y);return[_add(e,-7),e]}},
+  {key:'cinco',name:'Cinco de Mayo',theme:'cinco',win:y=>[_d(y,5,3),_d(y,5,5)]},
+  {key:'memorial',name:'Memorial Day',theme:'usa',win:y=>{const m=nthDow(y,5,1,-1);return[_add(m,-3),m]}},
+  {key:'juneteenth',name:'Juneteenth',theme:'juneteenth',win:y=>[_d(y,6,17),_d(y,6,19)]},
+  {key:'july4',name:'Fourth of July',theme:'usa',win:y=>[_d(y,7,1),_d(y,7,5)]},
+  {key:'labor',name:'Labor Day',theme:'usa',win:y=>{const m=nthDow(y,9,1,1);return[_add(m,-3),m]}},
+  {key:'halloween',name:'Halloween',theme:'halloween',win:y=>[_d(y,10,24),_d(y,10,31)]},
+  {key:'thanks',name:'Thanksgiving',theme:'thanks',win:y=>{const t=nthDow(y,11,4,4);return[_add(t,-3),_add(t,3)]}},
+  {key:'christmas',name:'Christmas',theme:'christmas',win:y=>[_d(y,12,1),_d(y,12,30)]}];
+const SEASONS=[
+  {key:'jan',name:'January',theme:'jan',win:y=>[_d(y,1,3),_d(y,1,31)]},
+  {key:'spring',name:'Green spring',theme:'spring',win:y=>[_d(y,3,20),_d(y,4,30)]},
+  {key:'may',name:'May',theme:'june',win:y=>[_d(y,5,1),_d(y,5,31)]},
+  {key:'june',name:'June',theme:'july',win:y=>[_d(y,6,1),_d(y,6,30)]},
+  {key:'february',name:'February',theme:'february',win:y=>[_d(y,2,1),new Date(y,2,0)]},
+  {key:'august',name:'August',theme:'august',win:y=>[_d(y,8,1),_d(y,8,31)]},
+  {key:'july',name:'July',theme:'may',win:y=>[_d(y,7,1),_d(y,7,31)]},
+  {key:'september',name:'September',theme:'september',win:y=>[_d(y,9,1),_d(y,9,20)]},
+  {key:'autumn',name:'Autumn',theme:'autumn',win:y=>[_d(y,9,21),_d(y,11,30)]}];
+function inWin(list,dt){const t=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate());let best=null;
+  for(const h of list)for(const y of [t.getFullYear()-1,t.getFullYear()]){const [a,b]=h.win(y);if(t>=a&&t<=b){const len=b-a;if(!best||len<best.len)best={...h,len,a,b}}}
+  return best}
+function nextWin(h,dt){const t=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate());for(const y of [t.getFullYear()-1,t.getFullYear(),t.getFullYear()+1]){const [a,b]=h.win(y);if(b>=t)return[a,b]}}
+function pickTheme(){
+  if(S.preview&&THEMES[S.preview])return{key:S.preview,why:'Preview'};
+  const now=new Date(),m=S.meta||{};
+  if(m.holidayThemes!==false){const h=inWin(HOLIDAYS,now);if(h&&h.theme&&THEMES[h.theme])return{key:h.theme,why:h.name}}
+  const se=inWin(SEASONS,now);if(se&&se.theme&&THEMES[se.theme]&&(m.seasons||{})[se.key])return{key:se.theme,why:se.name+' season'};
+  return{key:'sunset',why:'Default'};
+}
+let appliedTheme=null;
+function applyTheme(){const {key}=pickTheme();if(appliedTheme===key)return;appliedTheme=key;const r=document.documentElement;
+  TVARS.forEach(k=>r.style.removeProperty(k));Object.entries(THEMES[key].v).forEach(([k,v])=>r.style.setProperty(k,v));
+  const mc=document.querySelector('meta[name="theme-color"]');if(mc)mc.content=THEMES[key].v['--deep']||'#2B1A35'}
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const APP=document.scrollingElement||document.documentElement;
+const clone=o=>JSON.parse(JSON.stringify(o));
+const pad=n=>String(n).padStart(2,'0');
+const keyOf=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse=k=>{const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(d,n)=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()+n);return x};
+const mondayOf=d=>addDays(d,-((d.getDay()+6)%7));
+const monthDoc=k=>'m-'+k.slice(0,7);
+const rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DOW=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DOWF=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const todayKey=()=>keyOf(new Date());
+const fmtTime=t=>{if(!t)return'';let[h,m]=t.split(':').map(Number);const ap=h>=12?'PM':'AM';h=h%12||12;return`${h}:${pad(m)} ${ap}`};
+const XMARK='<svg viewBox="0 0 16 16" fill="none" stroke="var(--danger)" stroke-width="2.4" stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>';
+const CHECK='<svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+
+/* ---------- state ---------- */
+let prefs={};try{prefs=JSON.parse(localStorage.getItem('daybook:prefs')||'{}')}catch(e){}
+const S={view:'home',five:!!prefs.five,anchor:new Date(),lib:null,months:{},sheet:null,ready:false};
+function savePrefs(){try{localStorage.setItem('daybook:prefs',JSON.stringify({view:S.view,five:S.five}))}catch(e){}}
+const lib=()=>S.lib||(S.lib=clone(DEFAULT_LIB));
+const catById=id=>lib().cats.find(c=>c.id===id);
+const getDay=k=>(S.months[monthDoc(k)]?.days?.[k])||[];
+function setDay(k,arr){
+  const id=monthDoc(k);
+  const m=S.months[id]||(S.months[id]={days:{}});
+  m.days=m.days||{};
+  if(arr.length)m.days[k]=arr;else delete m.days[k];
+  markDirty(id);
+}
+const sortItems=a=>[...a].sort((x,y)=>(x.time?0:1)-(y.time?0:1)||(x.time||'').localeCompare(y.time||'')||0);
+const view=e=>{const c=catById(e.cat);return{name:c?c.name:e.catName,color:c?catColor(c):slotColors()[nearestSlot(fixC(e.color||'#7A6A80'))]}};
+
+/* ---------- persistence ---------- */
+let db=null,me=null,mode='local',ASSETS=null;
+const dirty=new Set(),inflight=new Set();let flushT=null;
+function markDirty(id){dirty.add(id);clearTimeout(flushT);flushT=setTimeout(flush,350)}
+async function flush(){
+  for(const id of [...dirty]){
+    if(inflight.has(id))continue;
+    dirty.delete(id);inflight.add(id);
+    const body=clone(id==='library'?S.lib:id==='meta'?S.meta:id==='photos'?S.photos:S.months[id]);
+    try{await save(id,body)}
+    catch(e){
+      if(e&&e.code==='unavailable'){dirty.add(id);setTimeout(flush,1500+Math.random()*1000)}
+      else if(e&&e.code==='quota_exceeded')toast('Storage is full. Delete old items to keep saving.');
+      else toast("Couldn't save that change. Try again.");
+    }
+    finally{inflight.delete(id);if(dirty.has(id)){clearTimeout(flushT);flushT=setTimeout(flush,350)}}
+  }
+}
+async function save(id,body){
+  if(mode==='db')return db.doc(`data/users/${me}/${id}`).set(body);
+  try{localStorage.setItem('daybook:doc:'+id,JSON.stringify(body))}catch(e){}
+}
+function loadLocal(){
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!k.startsWith('daybook:doc:'))continue;
+    const id=k.slice(12),v=JSON.parse(localStorage.getItem(k));if(id==='library'){S.lib=migrate(v);if(upgrade(S.lib))markDirty('library')}else if(id==='meta')S.meta=v;else if(id==='photos')S.photos=v;else S.months[id]=v}}catch(e){}
+}
+let pendingRender=false;
+function isTyping(){const a=document.activeElement;return !!a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)}
+document.addEventListener('focusout',()=>setTimeout(()=>{if(pendingRender&&!isTyping()){pendingRender=false;render();if(S.sheet&&S.sheet.type==='day')drawSheet()}},50));
+function banner(msg){$('#banner').innerHTML=msg?`<div class="banner">${esc(msg)}</div>`:''}
+
+async function init(){
+  render();
+  const c=window.claude;
+  if(c&&c.use){
+    try{db=await c.use('db')}catch(e){db=null}
+    try{const u=await c.use('user');me=u?await u.id():null}catch(e){me=null}
+    try{ASSETS=await c.use('assets')}catch(e){ASSETS=null}
+  }
+  if(db&&me){
+    mode='db';
+    const loadT=setTimeout(()=>{if(!S.ready){S.ready=true;render()}banner("Can't reach your saved schedule yet. Showing what's on this device.")},10000);
+    db.collection(`data/users/${me}`).onSnapshot(snap=>{
+      let changed=false;
+      for(const d of snap.docs){
+        if(dirty.has(d.id)||inflight.has(d.id))continue;
+        const v=d.data();if(!v)continue;
+        const cur=d.id==='library'?S.lib:d.id==='meta'?S.meta:d.id==='photos'?S.photos:S.months[d.id];
+        if(cur&&JSON.stringify(cur)===JSON.stringify(v))continue;
+        changed=true;
+        if(d.id==='library'){S.lib=migrate(clone(v));if(upgrade(S.lib))markDirty('library')}else if(d.id==='meta')S.meta=clone(v);else if(d.id==='photos'){S.photos=clone(v);setTimeout(refreshSlides)}else if(d.id.startsWith('m-'))S.months[d.id]=clone(v);
+      }
+      if(!snap.metadata.fromCache){clearTimeout(loadT);banner('')}
+      const first=!S.ready;S.ready=true;
+      if(first||changed){if(isTyping())pendingRender=true;else{render();if(S.sheet&&S.sheet.type==='day')drawSheet()}}
+    },err=>{clearTimeout(loadT);S.ready=true;render();banner('Sync stopped. Reopen the page to reconnect.')});
+  }else{
+    mode='local';loadLocal();S.ready=true;
+    banner('Saving on this device only. Open from claude.ai while signed in to sync across devices.');
+    render();
+  }
+}
+
+/* ---------- render ---------- */
+function render(){
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.view));
+  applyTheme();renderNav();renderTicker();
+  {const f=$('#fstatus');if(f){const lb=S.meta&&S.meta.lastBackup;const fmt=k=>{const d=parse(k);return `${MON[d.getMonth()]} ${d.getDate()}`};
+    f.textContent=(mode==='db'?'Saved to your Claude account':'Saved on this device')+' · '+(lb?`Last backup ${fmt(lb)}`:'No backup yet')}}
+  const now=new Date();$('#bdate').textContent=`${DOW[(now.getDay()+6)%7]}, ${MON[now.getMonth()]} ${now.getDate()}`;
+  const main=$('#main');main.classList.toggle('home',S.view==='home'&&S.ready);
+  if(!S.ready){main.innerHTML='<div class="empty">Loading your schedule...</div>';return}
+  if(S.view==='home')renderHome(main);else if(S.view==='docs')renderDocs(main);else if(S.view==='week')renderWeek(main);else if(S.view==='month')renderMonth(main);else renderLib(main);
+}
+function renderNav(){
+  const n=$('#nav');
+  if(S.view==='home'){n.innerHTML='';return}
+  if(S.view==='docs'){const d=DOCS.find(x=>x.id===S.doc);n.innerHTML=d?`<button class="ib" data-act="docback" aria-label="Back">&#8249;</button><h1 class="grow">${esc(d.short)}</h1>`:'<h1 class="grow">Documents</h1>';return}
+  if(S.view==='lib'){const T={acts:'Activities',themes:'Themes',photos:'Home photos',data:'Your data'}[S.editSec];
+    n.innerHTML=T?`<button class="ib" data-act="eback" aria-label="Back">&#8249;</button><h1 class="grow">${T}</h1><span class="sub">Saves automatically</span>`:'<h1 class="grow">Edit</h1><span class="sub">Saves automatically</span>';return}
+  let label;
+  if(S.view==='week'){
+    const s=mondayOf(S.anchor),e=addDays(s,S.five?4:6);
+    label=s.getMonth()===e.getMonth()?`${MON[s.getMonth()]} ${s.getDate()} - ${e.getDate()}`:`${MON[s.getMonth()]} ${s.getDate()} - ${MON[e.getMonth()]} ${e.getDate()}`;
+  }else label=`${MONTHS[S.anchor.getMonth()]} ${S.anchor.getFullYear()}`;
+  n.innerHTML=`<button class="ib" data-act="prev" aria-label="Previous">&#8249;</button>
+    <h1 class="grow">${label}</h1>
+    ${S.view==='week'?`<button class="pill ${S.five?'on':''}" data-act="five">${S.five?'5 day':'7 day'}</button>`:''}
+    <button class="pill" data-act="today">Today</button>
+    <button class="ib" data-act="next" aria-label="Next">&#8250;</button>`;
+}
+function itemRow(k,e){
+  const v=view(e);
+  const det=[e.time?'':null,...(e.picks||[])].filter(Boolean).join(', ');
+  const sub=[det,e.note].filter(Boolean).join(' · ');
+  return `<div class="item ${e.done?'done':e.missed?'missed':''}" style="--c:${esc(v.color)}">
+    <button class="chk" data-act="toggle" data-k="${k}" data-id="${esc(e.id)}" aria-label="Change status">${e.missed?XMARK:CHECK}</button>
+    <button class="body" data-act="edit" data-k="${k}" data-id="${esc(e.id)}">
+      <div class="t"><span>${esc(v.name)}</span>${e.time?`<span class="tm">${fmtTime(e.time)}</span>`:''}${e.missed?'<span class="mtag">Missed</span>':''}</div>
+      ${sub?`<div class="d">${esc(sub)}</div>`:''}
+    </button></div>`;
+}
+function renderWeek(main){
+  const s=mondayOf(S.anchor),n=S.five?5:7,tk=todayKey();
+  let tot=0,dn=0,ms=0,html='';
+  for(let i=0;i<n;i++){
+    const d=addDays(s,i),k=keyOf(d),items=sortItems(getDay(k));
+    tot+=items.length;dn+=items.filter(x=>x.done).length;ms+=items.filter(x=>x.missed).length;
+    const c=items.filter(x=>x.done).length;
+    html+=`<section class="day ${k===tk?'today':''}" id="d-${k}">
+      <div class="dh"><b>${DOW[i]}</b><span class="sub">${MON[d.getMonth()]} ${d.getDate()}</span>${k===tk?'<span class="tag">Today</span>':''}
+      <span class="grow"></span>${items.length?`<span class="sub">${c}/${items.length}</span>`:''}
+      <button class="add" data-act="new" data-k="${k}" aria-label="Add">+</button></div>
+      ${items.length?items.map(e=>itemRow(k,e)).join(''):`<button class="none" data-act="new" data-k="${k}">Nothing planned. Tap + to add.</button>`}
+    </section>`;
+  }
+  const pct=tot?Math.round(dn/tot*100):0;
+  main.innerHTML=`<div class="summary"><span class="sub">${dn} of ${tot} done${ms?` · ${ms} missed`:''}</span><div class="bar"><i style="width:${pct}%"></i></div><span class="sub">${pct}%</span></div>
+    <div class="week">${html}</div>
+    <div class="wfoot"><button class="btn" data-act="copyweek">Copy last week's plan here</button>
+    <button class="btn" data-act="export">Send to phone calendar</button></div>`;
+}
+const LINES=['Small reps, every day.','Show up. Fill the circle.','Done beats perfect.','One good day, then another.','Build the day you want to repeat.','Make it count, then make it a habit.','Momentum is a choice.'];
+function streak(){let d=new Date(),n=0;const full=k=>{const it=getDay(k);return it.length&&it.every(x=>x.done)};
+  if(!full(keyOf(d)))d=addDays(d,-1);
+  for(let i=0;i<400&&full(keyOf(d));i++){n++;d=addDays(d,-1)}return n}
+function renderHome(main){
+  const now=new Date(),k=keyOf(now),items=sortItems(getDay(k)),dn=items.filter(x=>x.done).length;
+  const h=now.getHours(),greet=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const doy=Math.floor((now-new Date(now.getFullYear(),0,0))/864e5);
+  const mon=mondayOf(now);let wt=0,wd=0;for(let i=0;i<7;i++){const it=getDay(keyOf(addDays(mon,i)));wt+=it.length;wd+=it.filter(x=>x.done).length}
+  const pct=items.length?dn/items.length:0,C=2*Math.PI*17;
+  const ring=`<svg class="ring" viewBox="0 0 42 42"><circle cx="21" cy="21" r="17" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="4"/>
+    <circle cx="21" cy="21" r="17" fill="none" style="stroke:var(--hi)" stroke-width="4" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}" transform="rotate(-90 21 21)"/>
+    <text x="21" y="25" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">${Math.round(pct*100)}%</text></svg>`;
+  const st=streak();
+  let hero=main.querySelector('.hero');
+  if(!hero){main.innerHTML='<section class="hero"><div class="hero-in"></div></section>';hero=main.firstChild;hero.prepend(ensureSlides())}
+  hero.querySelector('.hero-in').innerHTML=`
+    <div class="hl"><div class="when">${DOWF[(now.getDay()+6)%7]}, ${MONTHS[now.getMonth()]} ${now.getDate()}</div>
+    <h2>Make Today<br>Yours</h2>
+    <p class="greet">${greet}, Sean.</p>
+    <p class="line">${LINES[doy%LINES.length]}</p>
+    <div class="mini"><span>This week ${wd}/${wt}</span><span>${st}-day streak</span></div>
+    <div class="dots" id="dots"></div></div>
+    <div class="spacer"></div>
+    <div class="hr"><div class="glass">
+      <div class="ghead">${ring}<div class="grow"><b>Today</b><div style="font-size:13px;opacity:.8">${items.length?`${dn} of ${items.length} done${items.some(x=>x.missed)?` · ${items.filter(x=>x.missed).length} missed`:''}`:'Nothing planned yet'}</div></div>
+        <button class="add" data-act="new" data-k="${k}" aria-label="Add" style="background:rgba(255,255,255,.18);color:#fff">+</button></div>
+      ${items.length?items.map(e=>itemRow(k,e)).join(''):'<div class="gempty">Tap + to plan your day.</div>'}
+    </div>
+    <div class="hbtns"><button class="hbtn" data-act="new" data-k="${k}">Plan today</button><button class="hbtn alt" data-act="view" data-v="week">This week</button></div></div>`;
+  paintDots();
+}
+const BUILTIN=[['florence',50],['trail',68],['thorns',50],['badwater',40],['dune',50],['statue',55],['fountain',50],['sailboat',62],['cat',62],['pesaro',50]];
+const ALL='__all',PICKS="Sean's picks";
+function photos(){if(!S.photos)S.photos={albums:[PICKS],photos:BUILTIN.map(([n,x])=>({id:'b-'+n,builtin:n,album:PICKS,x})),active:ALL,speed:10,zoom:true};return S.photos}
+const urlCache={};
+const photoSrc=p=>p.builtin?`slides/${p.builtin}.jpg`:(urlCache[p.asset]||'/_blob/'+p.asset);
+function activeSet(){const P=photos();let a=P.active===ALL?P.photos:P.photos.filter(p=>p.album===P.active);return a.length?a:P.photos}
+let slidesEl=null,slideIdx=0,slideT=null,slidesSig='';
+const slideSig=()=>JSON.stringify([activeSet().map(p=>[p.id,p.x]),photos().zoom!==false]);
+function ensureSlides(){
+  if(slidesEl&&slidesSig===slideSig())return slidesEl;
+  const old=slidesEl;slidesEl=document.createElement('div');slidesEl.className='slides'+(photos().zoom===false?' nozoom':'');
+  slidesSig=slideSig();slideIdx=0;
+  const set=[...activeSet()].sort(()=>Math.random()-.5);
+  for(const p of set){const d=document.createElement('div');d.className='slide';d.style.backgroundPosition=`${p.x??50}% 50%`;d.dataset.src=photoSrc(p);slidesEl.appendChild(d)}
+  if(set.length){loadSlide(0);if(set.length>1)loadSlide(1);slidesEl.children[0].classList.add('on')}
+  if(old&&old.isConnected)old.replaceWith(slidesEl);
+  if(!slideT)scheduleSlide();
+  return slidesEl;
+}
+function scheduleSlide(){clearTimeout(slideT);slideT=setTimeout(()=>{nextSlide();scheduleSlide()},(photos().speed||10)*1000)}
+function refreshSlides(){if(slidesEl){ensureSlides();paintDots()}}
+function loadSlide(i){const n=slidesEl.children.length;if(!n)return;const d=slidesEl.children[i%n];if(!d.style.backgroundImage)d.style.backgroundImage=`url("${d.dataset.src}")`}
+function nextSlide(){
+  if(!slidesEl||document.hidden||S.view!=='home'||!slidesEl.isConnected)return;
+  const n=slidesEl.children.length;if(n<2)return;const cur=slidesEl.children[slideIdx];
+  slideIdx=(slideIdx+1)%n;const nx=slidesEl.children[slideIdx];
+  nx.classList.add('on');cur.classList.add('out');
+  setTimeout(()=>{cur.style.transition='none';cur.classList.remove('on','out');void cur.offsetWidth;cur.style.transition=''},2600);
+  loadSlide(slideIdx+1);paintDots();
+}
+function paintDots(){const el=document.getElementById('dots');if(!el||!slidesEl)return;
+  el.innerHTML=[...slidesEl.children].map((_,i)=>`<i class="${i===slideIdx?'on':''}"></i>`).join('')}
+const DOCS=[
+ {id:'syllabus',tpl:'doc-syllabus',title:'Light & Lens Syllabus',short:'Light & Lens',sub:'8-week light mastery cycle, lens field guide, pre-session protocol',tag:'DOCX',bg:'linear-gradient(160deg,#E56B5E,#843660)'},
+ {id:'nikkor',tpl:'doc-nikkor',title:'NIKKOR Lens Nomenclature',short:'Lens Nomenclature',sub:'F-mount designations decoded, plus your lenses',tag:'PDF',bg:'linear-gradient(160deg,#F6A961,#BB405C)'},
+ {id:'it',pages:[1,2,3,4].map(i=>`docs/it-${i}.jpg`),title:'Italiano: Reactivation to Fluency',short:'Italian syllabus',sub:'12-month program to certified B2 (CILS/CELI)',tag:'PDF',bg:'linear-gradient(160deg,#C98A3B,#843660)'},
+ {id:'uk',pages:[1,2,3,4].map(i=>`docs/uk-${i}.jpg`),title:'Ukrainian: Zero to Conversational',short:'Ukrainian syllabus',sub:'12-month program to B1 conversation',tag:'PDF',bg:'linear-gradient(160deg,#9E2F4E,#583168)'}];
+function renderDocs(main){
+  const d=DOCS.find(x=>x.id===S.doc);
+  if(d&&d.pages){main.innerHTML=`<div class="pdfbar"><span class="sub">${d.pages.length} pages · tap a page to zoom</span><span class="grow"></span><button class="pill ${S.zoom?'on':''}" data-act="zoom">${S.zoom?'Fit width':'Zoom in'}</button></div>
+    <div class="pdf ${S.zoom?'z':''}">${d.pages.map((p,i)=>`<img src="${p}" alt="Page ${i+1}" loading="lazy" data-act="zoom">`).join('')}</div>`;return}
+  if(d){main.innerHTML='<article class="doc"></article>';main.firstChild.appendChild(document.getElementById(d.tpl).content.cloneNode(true));return}
+  main.innerHTML='<div class="doclist">'+DOCS.map(x=>`<button class="doccard" data-act="opendoc" data-id="${x.id}">
+    <span class="ic" style="background:${x.bg}">${x.tag}</span><span class="grow"><b>${esc(x.title)}</b><span class="sub">${esc(x.sub)}</span></span><span class="sub" style="font-size:20px">&#8250;</span></button>`).join('')+'</div>';
+}
+function renderMonth(main){
+  const a=S.anchor,first=new Date(a.getFullYear(),a.getMonth(),1),start=mondayOf(first);
+  const last=new Date(a.getFullYear(),a.getMonth()+1,0);
+  const weeks=Math.ceil(((last-start)/864e5+1)/7);
+  const tk=todayKey();let cells='';
+  for(let i=0;i<weeks*7;i++){
+    const d=addDays(start,i),k=keyOf(d),items=sortItems(getDay(k));
+    const all=items.length&&items.every(x=>x.done);
+    cells+=`<button class="cell ${d.getMonth()!==a.getMonth()?'out':''} ${k===tk?'today':''} ${all?'alldone':''}" data-act="day" data-k="${k}">
+      <span class="n">${d.getDate()}</span>
+      ${items.slice(0,3).map(e=>{const v=view(e);return`<span class="mi ${e.done?'dn':e.missed?'ms':''}" style="--c:${esc(v.color)}">${esc(v.name)}</span>`}).join('')}
+      ${items.length>3?`<span class="more">+${items.length-3}</span>`:''}</button>`;
+  }
+  main.innerHTML=`<div class="month"><div class="mh">${DOW.map(x=>`<div>${x[0]}</div>`).join('')}</div><div class="mg">${cells}</div></div>
+    <div class="wfoot"><button class="btn" data-act="export">Send month to phone calendar</button></div>`;
+}
+function themeCard(page){
+  const cur=pickTheme(),m=S.meta||{},strip=k=>`<span class="tstrip">${THEMES[k].sw.map(c=>`<i style="background:${c}"></i>`).join('')}</span>`;
+  if(!page&&!S.openThemes)return `<div class="libcat closed"><button class="lhead" data-act="openthemes">${strip(cur.key)}<span class="grow"><b>Themes</b><span class="sub">Now: ${esc(THEMES[cur.key].name)} · ${esc(cur.why)}</span></span><span class="chev">&#8250;</span></button></div>`;
+  const now=new Date(),fmt=d=>`${MON[d.getMonth()]} ${d.getDate()}`,rng=([a,b])=>+a===+b?fmt(a):`${fmt(a)} - ${fmt(b)}`;
+  const Y=now.getFullYear(),ord=h=>{if(h.key==='newyear')return 0;const a=h.win(Y)[0];return a.getMonth()*100+a.getDate()+(h.kind==='h'?0.5:0)};
+  const cal=[...HOLIDAYS.map(h=>({...h,kind:'h'})),...SEASONS.map(x=>({...x,kind:'s'}))].sort((a,b)=>ord(a)-ord(b));
+  const prev=['sunset',...[...new Set(cal.map(x=>x.theme).filter(Boolean))]];
+  return `<div class="libcat"><div class="row">${strip(cur.key)}<b class="grow" style="font-size:16px">Themes</b>${page?'':'<button class="x chevb" data-act="openthemes" aria-label="Collapse"><span class="chev on">&#8250;</span></button>'}</div>
+    <div class="sub" style="margin-top:6px">Showing <b>${esc(THEMES[cur.key].name)}</b> (${esc(cur.why)}).</div>
+    <div class="row" style="margin-top:10px"><span class="grow">Holiday themes</span><button class="pill ${m.holidayThemes!==false?'on':''}" data-act="tholiday">${m.holidayThemes!==false?'On':'Off'}</button></div>
+    <div class="lbl">Preview</div><div class="chips">${prev.map(k=>`<button class="chip ${S.preview===k?'on':''}" style="--c:var(--accent)" data-act="tpreview" data-v="${k}">${strip(k)} ${esc(THEMES[k].name)}</button>`).join('')}
+      ${S.preview?'<button class="chip" data-act="tpreview" data-v="">Stop preview</button>':''}</div>
+    <div class="lbl">Activity colors in this theme</div><div class="slotrow">${slotColors().map((c,i)=>`<span style="background:${c}">${i+1}</span>`).join('')}</div>
+    <div class="sub" style="margin-top:4px">Each activity uses a numbered slot. Tap an activity's color dot to cycle through these.</div>
+    <div class="lbl">Calendar</div>
+    <div class="sub" style="margin-bottom:4px">Holidays switch on automatically. Seasons run only when you turn them on.</div>
+    ${cal.map(x=>{const w=nextWin(x,now),hol=x.kind==='h';return `<div class="trow ${hol?'hol':''}"><span class="grow"><b>${esc(x.name)}</b><span class="sub">${hol?'Holiday':'Season'} · ${rng(w)}</span></span>${x.theme?strip(x.theme):''}${!hol&&x.theme?`<button class="pill ${(m.seasons||{})[x.key]?'on':''}" data-act="tseason" data-v="${x.key}">${(m.seasons||{})[x.key]?'On':'Off'}</button>`:hol?'<span class="tauto">Auto</span>':''}</div>`}).join('')}
+  </div>`;
+}
+function photoCard(page){
+  const P=photos(),n=P.photos.length,act=P.active===ALL?'All photos':P.active,can=!!ASSETS;
+  if(!page&&!S.openPhotos)return `<div class="libcat closed"><button class="lhead" data-act="openphotos"><span class="phic"></span><span class="grow"><b>Home photos</b><span class="sub">${n} photo${n===1?'':'s'} · Playing: ${esc(act)}</span></span><span class="chev">&#8250;</span></button></div>`;
+  const sel=P.photos.find(p=>p.id===S.photoSel),cnt=a=>a===ALL?n:P.photos.filter(p=>p.album===a).length;
+  const panel=p=>`<div class="psel"><div class="row"><span class="sub grow">Album</span><select id="p-move" data-id="${esc(p.id)}">${P.albums.map(a=>`<option ${a===p.album?'selected':''}>${esc(a)}</option>`).join('')}</select></div>
+    <div class="row"><span class="sub grow">Keep in frame</span><div class="seg small">${[[25,'Left'],[50,'Center'],[75,'Right']].map(([v,l])=>`<button class="${(p.x??50)===v?'on':''}" data-act="pcrop" data-v="${v}">${l}</button>`).join('')}</div></div>
+    <button class="danger" data-act="premove" data-id="${esc(p.id)}" style="justify-self:start;padding:6px 0">Remove photo</button></div>`;
+  return `<div class="libcat"><div class="row"><span class="phic"></span><b class="grow" style="font-size:16px">Home photos</b>${page?'':'<button class="x chevb" data-act="openphotos" aria-label="Collapse"><span class="chev on">&#8250;</span></button>'}</div>
+    <div class="lbl">Plays on Home</div><div class="chips">${[ALL,...P.albums].map(a=>`<button class="chip ${P.active===a?'on':''}" style="--c:var(--accent)" data-act="palbum" data-v="${esc(a)}">${a===ALL?'All photos':esc(a)} <span class="pc">${cnt(a)}</span></button>`).join('')}</div>
+    <div class="row" style="margin-top:10px"><span class="sub grow">New photo every</span><select id="p-speed">${[6,10,15,20,30].map(v=>`<option value="${v}" ${(P.speed||10)===v?'selected':''}>${v} seconds</option>`).join('')}</select></div>
+    <div class="row" style="margin-top:8px"><span class="sub grow">Slow zoom</span><button class="pill ${P.zoom!==false?'on':''}" data-act="pzoom">${P.zoom!==false?'On':'Off'}</button></div>
+    ${P.albums.map((a,ai)=>`<div class="libgrp open"><div class="row"><input class="gname" value="${esc(a)}" data-edit="album" data-a="${ai}"><button class="x" data-act="delalbum" data-a="${ai}" aria-label="Delete album">&times;</button></div>
+      <div class="pgrid">${P.photos.filter(p=>p.album===a).map(p=>`<button class="pth ${S.photoSel===p.id?'sel':''}" data-act="psel" data-id="${esc(p.id)}" style="background-image:url('${photoSrc(p)}');background-position:${p.x??50}% 50%" aria-label="Photo options"></button>`).join('')}
+      ${can?`<label class="pth add" aria-label="Add photos">+<input type="file" accept="image/*" multiple hidden data-upload="${esc(a)}"></label>`:''}</div>
+      ${sel&&sel.album===a?panel(sel):''}</div>`).join('')}
+    <div class="row"><input class="grow" placeholder="+ New album (e.g. Travel)" data-add="album" enterkeyhint="done" style="margin-top:10px"></div>
+    ${can?'<div class="sub" style="margin-top:8px">Tap + to add from your camera roll. Tap a photo to move it, adjust its crop, or remove it.</div>':'<div class="sub" style="margin-top:8px">Adding photos works when Daybook is open on claude.ai, signed in as you.</div>'}
+  </div>`;
+}
+async function shrink(file){
+  let src;try{src=await createImageBitmap(file,{imageOrientation:'from-image'})}catch(e){src=await new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=URL.createObjectURL(file)})}
+  const w=src.width,h=src.height,sc=Math.min(1,1600/Math.max(w,h)),c=document.createElement('canvas');c.width=Math.round(w*sc);c.height=Math.round(h*sc);
+  c.getContext('2d').drawImage(src,0,0,c.width,c.height);
+  return await new Promise(r=>c.toBlob(r,'image/jpeg',.82));
+}
+async function uploadPhotos(files,album){
+  if(!ASSETS)return;const P=photos();let ok=0;
+  for(let i=0;i<files.length;i++){toast(`Adding photo ${i+1} of ${files.length}...`);
+    try{const blob=await shrink(files[i]);const r=await ASSETS.upload(blob,{type:'image/jpeg'});urlCache[r.id]=r.url;
+      P.photos.push({id:'u-'+rid(),asset:r.id,album,x:50});ok++;markDirty('photos')}
+    catch(e){toast(e&&e.code==='quota_or_state'?'Photo storage is full':e&&e.code==='too_large'?'That photo is too large':"Couldn't add that photo");await new Promise(r=>setTimeout(r,1200))}}
+  if(ok)toast(`Added ${ok} photo${ok===1?'':'s'}`);render();refreshSlides();
+}
+function renderActs(main){
+  const L=lib(),ed=S.editItem,OC=S.openCats||(S.openCats=new Set()),OG=S.openGrps||(S.openGrps=new Set());
+  const up=(act,ds,dis)=>`<button class="x" data-act="${act}" ${ds} data-d="-1" ${dis?'disabled style="opacity:.25"':''} aria-label="Move up">&#8593;</button>`;
+  const dn=(act,ds,dis)=>`<button class="x" data-act="${act}" ${ds} data-d="1" ${dis?'disabled style="opacity:.25"':''} aria-label="Move down">&#8595;</button>`;
+  const chev=(open,act,attrs)=>`<button class="x chevb" data-act="${act}" ${attrs} aria-label="${open?'Collapse':'Expand'}"><span class="chev ${open?'on':''}">&#8250;</span></button>`;
+  main.innerHTML=`<div class="libtop"><span class="sub grow">Tap an activity to open it, then tap a group to see its options.</span><button class="pill" data-act="libtoggleall">${OC.size?'Collapse all':'Expand all'}</button></div>`
+  +L.cats.map((c,ci)=>{
+    const n=c.groups.reduce((a,g)=>a+g.items.length,0),meta=`${c.groups.length} group${c.groups.length===1?'':'s'} · ${n} option${n===1?'':'s'}`;
+    if(!OC.has(c.id))return `<div class="libcat closed"><button class="lhead" data-act="opencat" data-id="${esc(c.id)}">
+      <span class="swatch" style="background:${esc(catColor(c))}"></span><span class="grow"><b>${esc(c.name)}</b><span class="sub">${meta}</span></span><span class="chev">&#8250;</span></button></div>`;
+    return `<div class="libcat">
+    <div class="row"><button class="swatch" style="background:${esc(catColor(c))}" data-act="color" data-c="${ci}" aria-label="Change color"></button>
+      <input class="lname" value="${esc(c.name)}" data-edit="cat" data-c="${ci}">
+      ${up('mvcat',`data-c="${ci}"`,ci===0)}${dn('mvcat',`data-c="${ci}"`,ci===L.cats.length-1)}
+      <button class="x" data-act="delcat" data-c="${ci}" aria-label="Delete activity">&times;</button>
+      ${chev(true,'opencat',`data-id="${esc(c.id)}"`)}</div>
+    ${c.groups.length?'':'<div class="sub" style="margin:6px 4px 0">No groups yet. Add one below, like "Books".</div>'}
+    ${c.groups.map((g,gi)=>{const gk=c.id+'|'+g.name;
+      if(!OG.has(gk))return `<div class="libgrp"><button class="ghead" data-act="opengrp" data-k="${esc(gk)}"><span class="gtitle">${esc(g.name)}</span><span class="cnt">${g.items.length}</span><span class="grow"></span><span class="chev">&#8250;</span></button></div>`;
+      return `<div class="libgrp open">
+      <div class="row"><input class="gname" value="${esc(g.name)}" data-edit="grp" data-c="${ci}" data-g="${gi}">
+        ${up('mvgrp',`data-c="${ci}" data-g="${gi}"`,gi===0)}${dn('mvgrp',`data-c="${ci}" data-g="${gi}"`,gi===c.groups.length-1)}
+        <button class="x" data-act="delgrp" data-c="${ci}" data-g="${gi}" aria-label="Delete group">&times;</button>
+        ${chev(true,'opengrp',`data-k="${esc(gk)}"`)}</div>
+      <div class="chips">${g.items.map((it,ii)=>ed&&ed.c===ci&&ed.g===gi&&ed.i===ii
+        ?`<input class="additem" value="${esc(it)}" data-edit="item" data-c="${ci}" data-g="${gi}" data-i="${ii}" enterkeyhint="done" style="width:170px">`
+        :`<span class="chip ed"><button data-act="renitem" data-c="${ci}" data-g="${gi}" data-i="${ii}">${esc(it)}</button><button class="x" data-act="delitem" data-c="${ci}" data-g="${gi}" data-i="${ii}" aria-label="Remove">&times;</button></span>`).join('')}
+        <input class="additem" placeholder="+ Add" data-add="item" data-c="${ci}" data-g="${gi}" enterkeyhint="done"></div></div>`}).join('')}
+    <div class="row"><input class="grow" placeholder="+ New group (e.g. Books, Lenses)" data-add="grp" data-c="${ci}" enterkeyhint="done" style="margin-top:10px"></div>
+  </div>`}).join('')+`<div class="libcat"><input class="newcat" placeholder="+ New activity (e.g. Reading)" data-add="cat" enterkeyhint="done"></div>`;
+  if(ed){const n=main.querySelector('input[data-edit="item"]');if(n){n.focus();n.select()}}
+}
+function renderLib(main){
+  const sec=S.editSec;
+  if(sec==='acts')return renderActs(main);
+  if(sec==='themes'){main.innerHTML=themeCard(true);return}
+  if(sec==='photos'){main.innerHTML=photoCard(true);return}
+  if(sec==='data'){main.innerHTML=dataCard();return}
+  const L=lib(),nopt=L.cats.reduce((a,c)=>a+c.groups.reduce((x,g)=>x+g.items.length,0),0),P=photos(),cur=pickTheme(),lb=S.meta&&S.meta.lastBackup;
+  const strip=k=>`<span class="tstrip">${THEMES[k].sw.map(c=>`<i style="background:${c}"></i>`).join('')}</span>`;
+  const dots=`<span class="secdots">${L.cats.slice(0,4).map(c=>`<i style="background:${esc(catColor(c))}"></i>`).join('')}</span>`;
+  const card=(v,icon,title,sub)=>`<div class="libcat closed"><button class="lhead" data-act="esec" data-v="${v}">${icon}<span class="grow"><b>${title}</b><span class="sub">${sub}</span></span><span class="chev">&#8250;</span></button></div>`;
+  main.innerHTML=card('acts',dots,'Activities',`${L.cats.length} activities · ${nopt} options`)
+    +card('themes',strip(cur.key),'Themes',`Now: ${esc(THEMES[cur.key].name)} · ${esc(cur.why)}`)
+    +card('photos','<span class="phic"></span>','Home photos',`${P.photos.length} photos · Playing: ${esc(P.active===ALL?'All photos':P.active)}`)
+    +card('data','<span class="dataic">&#8681;</span>','Your data',lb?`Last backup ${MON[parse(lb).getMonth()]} ${parse(lb).getDate()}`:'No backup yet');
+}
+function dataCard(){return `<div class="libcat"><b>Your data</b><div class="sub" style="margin-top:4px">Save a copy of everything (activities and every scheduled item) as a file. Restoring replaces what's here with the file.</div>
+  ${S.pendingRestore?`<div class="banner" style="margin:10px 0 0">Replace all current data with the backup from ${esc((S.pendingRestore.saved||'').slice(0,10)||'that file')}?</div>
+    <div class="datarow"><button class="btn armed" data-act="restoreok">Replace</button><button class="btn" data-act="restorecancel">Cancel</button></div>`
+  :`<div class="datarow"><button class="btn" data-act="backup">Back up to file</button><label class="btn" style="cursor:pointer">Restore from file<input type="file" id="restore" accept=".json,application/json" hidden></label></div>`}</div>`}
+
+/* ---------- sheets ---------- */
+function openEditor(k,entry,back){
+  const fut=entry?new Set(futureOf(entry,k)).size:0;
+  const d=parse(k);
+  S.sheet={type:'edit',k,back,id:entry?entry.id:null,cat:entry?entry.cat:null,picks:new Set(entry?entry.picks||[]:[]),
+    note:entry?entry.note||'':'',time:entry?entry.time||'':'',dows:new Set([(d.getDay()+6)%7]),weeks:1,rmode:'weekly',months:12,mday:'date',scope:'one',fut,status:entry?(entry.done?'done':entry.missed?'missed':'open'):'open',ghost:entry&&!catById(entry.cat)?{name:entry.catName,color:slotColors()[nearestSlot(fixC(entry.color))]}:null};
+  drawSheet();
+}
+function drawSheet(){
+  const el=$('#sheet'),s=S.sheet;
+  if(!s){el.innerHTML='';return}
+  const ob=el.querySelector('.sh-body'),keep=ob&&ob.dataset.key===s.type+s.k+(s.id||'')?ob.scrollTop:0;
+  requestAnimationFrame(()=>{const nb=el.querySelector('.sh-body');if(nb){nb.dataset.key=s.type+s.k+(s.id||'');if(keep)nb.scrollTop=keep}});
+  const d=parse(s.k),title=`${DOW[(d.getDay()+6)%7]}, ${MON[d.getMonth()]} ${d.getDate()}`;
+  if(s.type==='day'){
+    const items=sortItems(getDay(s.k));
+    el.innerHTML=`<div class="sheet-wrap"><div class="sheet-bg" data-act="close"></div><div class="sheet daysheet"><div class="grab"></div>
+      <div class="sh-head"><b>${title}</b><button data-act="close">Done</button></div>
+      <div class="sh-body">${items.length?items.map(e=>itemRow(s.k,e)).join(''):'<div class="empty">Nothing planned.</div>'}</div>
+      <div class="sh-foot"><button class="primary" data-act="new" data-k="${s.k}" data-back="day">+ Add</button></div></div></div>`;
+    return;
+  }
+  const L=lib(),cat=catById(s.cat),edit=!!s.id;
+  const cats=L.cats.map(c=>`<button class="chip cat ${s.cat===c.id?'on':''}" style="--c:${esc(catColor(c))}" data-act="pickcat" data-id="${esc(c.id)}"><i></i>${esc(c.name)}</button>`).join('')
+    +(s.ghost&&!cat?`<button class="chip cat on" style="--c:${esc(s.ghost.color)}"><i></i>${esc(s.ghost.name)}</button>`:'')
+    +`<button class="chip" data-act="gotoedit">+ New activity</button>`;
+  const addIn=gi=>`<input class="additem" placeholder="+ Add" data-add="sheetitem" data-g="${gi}" enterkeyhint="done">`;
+  const groups=cat?`<div class="tree" style="--c:${esc(catColor(cat))}"><div class="tree-head"><i></i>${esc(cat.name)}</div>`+(cat.groups.length?cat.groups.map((g,gi)=>`<div class="branch"><div class="lbl">${esc(g.name)}</div><div class="chips">${g.items.map((it,ii)=>
+      `<button class="chip ${s.picks.has(it)?'on':''}" style="--c:${esc(catColor(cat))}" data-act="pick" data-g="${gi}" data-i="${ii}">${esc(it)}</button>`).join('')}${addIn(gi)}</div></div>`).join('')
+      :`<div class="branch"><div class="lbl">Options</div><div class="chips">${addIn(-1)}</div></div>`)+'</div>':'';
+  const dn=d.getDate(),isLast=dn===new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),ord=n=>n+(n%10===1&&n!==11?'st':n%10===2&&n!==12?'nd':n%10===3&&n!==13?'rd':'th');
+  const repeat=edit?'':`<div class="lbl">Repeat</div>
+    <div class="seg"><button class="${s.rmode==='weekly'?'on':''}" data-act="rmode" data-v="weekly">Weekly</button><button class="${s.rmode==='monthly'?'on':''}" data-act="rmode" data-v="monthly">Monthly</button></div>
+    ${s.rmode==='weekly'?`<div class="dows">${DOW.map((x,i)=>`<button class="${s.dows.has(i)?'on':''}" data-act="dow" data-i="${i}">${x[0]}</button>`).join('')}</div>
+    <div class="row" style="margin-top:10px"><span class="sub grow">For how many weeks</span>
+    <select id="f-weeks">${[1,2,3,4,6,8,12].map(w=>`<option value="${w}" ${s.weeks===w?'selected':''}>${w===1?'Just this week':w+' weeks'}</option>`).join('')}</select></div>`
+    :`${isLast?`<div class="seg"><button class="${s.mday!=='last'?'on':''}" data-act="mday" data-v="date">The ${ord(dn)}</button><button class="${s.mday==='last'?'on':''}" data-act="mday" data-v="last">Last day of month</button></div>`:''}
+    <div class="sub" style="margin-top:8px">${isLast&&s.mday==='last'?'On the <b>last day</b> of every month: the 31st, 30th, or 28th/29th in February.':`On the <b>${ord(dn)}</b> of each month${dn>28?', or the last day in shorter months':''}.`}</div>
+    <div class="row" style="margin-top:10px"><span class="sub grow">For how many months</span>
+    <select id="f-months">${[1,3,6,12,18,24].map(m=>`<option value="${m}" ${s.months===m?'selected':''}>${m===1?'Just this month':m+' months'}</option>`).join('')}</select></div>`}`;
+  const ok=!!(cat||s.ghost);
+  el.innerHTML=`<div class="sheet-wrap"><div class="sheet-bg" data-act="close"></div><div class="sheet"><div class="grab"></div>
+    <div class="sh-head"><b>${edit?'Edit':'Add'} · ${title}</b><button data-act="close">Cancel</button></div>
+    <div class="sh-body">
+      <div class="lbl">Activity${({photo:'syllabus',it:'it',uk:'uk'})[s.cat]?`<button class="doclink" data-act="opendoc" data-id="${({photo:'syllabus',it:'it',uk:'uk'})[s.cat]}">View syllabus</button>`:''}</div><div class="chips">${cats}</div>
+      ${groups}
+      ${edit&&s.fut?`<div class="lbl">Changes apply to</div><div class="seg"><button class="${s.scope!=='future'?'on':''}" data-act="scope" data-v="one">This one</button><button class="${s.scope==='future'?'on':''}" data-act="scope" data-v="future">This &amp; ${s.fut} future</button></div><div class="sub" style="margin:-2px 0 4px">Applies to edits and Delete. Status always changes just this one.</div>`:''}
+      ${edit?`<div class="lbl">Status</div><div class="stat-row">${[['open','Open'],['done','Done'],['missed','Missed']].map(([v,l])=>`<button class="chip ${s.status===v?'on':''} ${v==='missed'?'ms':''}" style="--c:var(--done)" data-act="status" data-v="${v}">${l}</button>`).join('')}</div>`:''}
+      ${ok?`<div class="lbl">Time (optional, sets the reminder)</div>
+      <div class="row"><input type="time" id="f-time" value="${esc(s.time)}" class="grow"><button class="pill" data-act="cleartime">No time</button></div>
+      <div class="lbl">Note (optional)</div><input id="f-note" value="${esc(s.note)}" placeholder="Anything extra" style="width:100%">
+      ${repeat}`:'<div class="sub" style="margin-top:12px">Pick an activity to see its options.</div>'}
+    </div>
+    <div class="sh-foot">${edit?'<button class="danger" data-act="delentry">Delete</button>':''}<button class="primary" data-act="save" ${ok?'':'disabled'}>Save</button></div>
+  </div></div>`;
+}
+function readInputs(){const s=S.sheet;if(!s||s.type!=='edit')return;const t=$('#f-time'),n=$('#f-note'),w=$('#f-weeks'),mo=$('#f-months');if(mo)s.months=+mo.value;
+  if(t)s.time=t.value;if(n)s.note=n.value.trim();if(w)s.weeks=+w.value}
+function closeSheet(){S.sheet=null;drawSheet()}
+/* ---------- series helpers ---------- */
+function sameSeries(a,b){if(a.series||b.series)return !!a.series&&a.series===b.series;
+  return a.cat===b.cat&&(a.time||'')===(b.time||'')&&(a.note||'')===(b.note||'')&&(a.picks||[]).join('|')===(b.picks||[]).join('|')}
+function futureOf(orig,fromK){const out=[];
+  for(const m of Object.values(S.months))for(const [k,arr] of Object.entries(m.days||{}))if(k>fromK)for(const e of arr)if(e.id!==orig.id&&sameSeries(orig,e))out.push(k);
+  return out}
+function applyFuture(orig,fromK,fn){const keys=[...new Set(futureOf(orig,fromK))];
+  for(const k of keys)setDay(k,getDay(k).flatMap(e=>e.id!==orig.id&&sameSeries(orig,e)?fn(e):[e]));return keys.length}
+function saveEntry(){
+  readInputs();const s=S.sheet,cat=catById(s.cat);
+  const order=cat?cat.groups.flatMap(g=>g.items):[];
+  const picks=[...order.filter(x=>s.picks.has(x)),...[...s.picks].filter(x=>!order.includes(x))];
+  const base={cat:s.cat,catName:cat?cat.name:s.ghost.name,color:cat?cat.color:s.ghost.color,picks,note:s.note,time:s.time};
+  if(s.id){
+    const orig=getDay(s.k).find(e=>e.id===s.id);
+    setDay(s.k,getDay(s.k).map(e=>e.id===s.id?{...e,...base,done:s.status==='done',missed:s.status==='missed'}:e));
+    if(orig&&s.scope==='future'){const n=applyFuture(orig,s.k,e=>[{...e,...base}]);if(n)toast(`Updated this and ${n} future`)}
+  }else{
+    const startD=parse(s.k),mon=mondayOf(startD);let count=0;
+    if((s.rmode==='monthly'&&s.months>1)||(s.rmode!=='monthly'&&(s.weeks>1||s.dows.size>1)))base.series=rid();
+    if(s.rmode==='monthly'){const day=startD.getDate();
+      for(let m=0;m<s.months;m++){const y=startD.getFullYear(),mm=startD.getMonth()+m,last=new Date(y,mm+1,0).getDate();
+        const isLast=day===new Date(startD.getFullYear(),startD.getMonth()+1,0).getDate(),useLast=isLast&&s.mday==='last';
+        const k=keyOf(new Date(y,mm,useLast?last:Math.min(day,last)));setDay(k,[...getDay(k),{id:rid(),...base,done:false}]);count++}
+    }else
+    for(let w=0;w<s.weeks;w++)for(const i of [...s.dows].sort()){
+      const d=addDays(mon,w*7+i);if(d<startD)continue;
+      const k=keyOf(d);setDay(k,[...getDay(k),{id:rid(),...base,done:false}]);count++;
+    }
+    if(count>1)toast(`Added ${count} times`);
+  }
+  const back=s.back,k=s.k;
+  if(back==='day')S.sheet={type:'day',k};else S.sheet=null;
+  drawSheet();render();
+}
+
+/* ---------- export (.ics) ---------- */
+async function exportIcs(){
+  let days=[];
+  if(S.view==='week'){const s=mondayOf(S.anchor);for(let i=0;i<(S.five?5:7);i++)days.push(keyOf(addDays(s,i)))}
+  else{const a=S.anchor,n=new Date(a.getFullYear(),a.getMonth()+1,0).getDate();for(let i=1;i<=n;i++)days.push(keyOf(new Date(a.getFullYear(),a.getMonth(),i)))}
+  const ie=s=>String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
+  const now=new Date(),stamp=`${now.getUTCFullYear()}${pad(now.getUTCMonth()+1)}${pad(now.getUTCDate())}T${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}00Z`;
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Daybook//EN','CALSCALE:GREGORIAN'];let n=0;
+  for(const k of days)for(const e of getDay(k)){
+    if(e.done||e.missed)continue;n++;
+    const v=view(e),ymd=k.replace(/-/g,'');
+    L.push('BEGIN:VEVENT',`UID:${e.id}@daybook`,`DTSTAMP:${stamp}`,`SUMMARY:${ie(v.name+(e.picks&&e.picks.length?': '+e.picks.join(', '):''))}`);
+    if(e.note)L.push(`DESCRIPTION:${ie(e.note)}`);
+    if(e.time){const[h,m]=e.time.split(':').map(Number);const end=new Date(2000,0,1,h,m+45);
+      L.push(`DTSTART:${ymd}T${pad(h)}${pad(m)}00`,`DTEND:${ymd}T${pad(end.getHours())}${pad(end.getMinutes())}00`,'BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${ie(v.name)}`,'TRIGGER:-PT15M','END:VALARM');}
+    else{L.push(`DTSTART;VALUE=DATE:${ymd}`,`DTEND;VALUE=DATE:${keyOf(addDays(parse(k),1)).replace(/-/g,'')}`,'BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${ie(v.name)}`,'TRIGGER:PT8H','END:VALARM');}
+    L.push('END:VEVENT');
+  }
+  L.push('END:VCALENDAR');
+  if(!n){toast('Nothing open to send in this view');return}
+  const text=L.join('\r\n');
+  let dl=null;try{dl=window.claude&&await window.claude.use('downloads')}catch(e){}
+  if(dl){try{await dl.save({filename:S.view==='week'?'daybook-week.ics':'daybook-month.ics',data:text});toast('Open the file to add it to your calendar');return}catch(e){toast('Download cancelled');return}}
+  try{await navigator.clipboard.writeText(text);toast('Calendar file copied')}catch(e){toast('Downloads are not available here')}
+}
+
+/* ---------- backup reminder ticker (1st & 15th) ---------- */
+function backupDue(){const n=new Date(),d=n.getDate();
+  return keyOf(new Date(n.getFullYear(),n.getMonth(),d>=15?15:1))}
+function renderTicker(){
+  const el=$('#ticker');if(!el)return;
+  const due=backupDue(),last=(S.meta&&S.meta.lastBackup)||'';
+  let hid='';try{hid=localStorage.getItem('daybook:tickerhide')||''}catch(e){}
+  if(!S.ready||last>=due||hid===todayKey()){el.innerHTML='';return}
+  el.innerHTML=`<div class="ticker"><div class="run" data-act="backup"><span>Backup day: tap here to save a copy of your Daybook data to Files or iCloud Drive &nbsp;&#9679;&nbsp; There is no automatic copy anywhere else, so a fresh backup keeps your plans safe</span></div><button class="x" data-act="hideticker" aria-label="Hide for today">&times;</button></div>`;
+}
+
+/* ---------- backup / restore ---------- */
+async function backup(){
+  const data=JSON.stringify({app:'daybook',format:1,saved:new Date().toISOString(),library:lib(),months:S.months,photos:S.photos||null});
+  let dl=null;try{dl=window.claude&&await window.claude.use('downloads')}catch(e){}
+  const done=()=>{S.meta={...(S.meta||{}),lastBackup:todayKey()};markDirty('meta');renderTicker()};
+  if(dl){try{await dl.save({filename:`daybook-backup-${todayKey()}.json`,data});done();toast('Backup saved')}catch(e){toast('Backup cancelled')}return}
+  try{await navigator.clipboard.writeText(data);done();toast('Backup copied to clipboard')}catch(e){toast('Downloads are not available here')}
+}
+function applyRestore(){
+  const o=S.pendingRestore;if(!o)return;S.pendingRestore=null;
+  S.lib=migrate(clone(o.library));upgrade(S.lib);markDirty('library');
+  for(const id of Object.keys(S.months))if(!o.months[id]){S.months[id]={days:{}};markDirty(id)}
+  for(const [id,m] of Object.entries(o.months))if(/^m-\d{4}-\d{2}$/.test(id)){S.months[id]=clone(m);markDirty(id)}
+  if(o.photos){S.photos=clone(o.photos);markDirty('photos');refreshSlides()}
+  toast('Backup restored');render();
+}
+
+/* ---------- interactions ---------- */
+let armedEl=null,armT=null;
+function arm(el,label){ // two-tap confirm
+  if(armedEl===el){clearTimeout(armT);armedEl=null;return true}
+  if(armedEl){armedEl.classList.remove('armed');armedEl.innerHTML=armedEl.dataset.orig}
+  el.dataset.orig=el.innerHTML;el.classList.add('armed');el.textContent=label;armedEl=el;
+  clearTimeout(armT);armT=setTimeout(()=>{if(armedEl===el){el.classList.remove('armed');el.innerHTML=el.dataset.orig;armedEl=null}},3000);
+  return false;
+}
+function toast(m){const t=$('#toast');t.innerHTML=`<div class="toast">${esc(m)}</div>`;clearTimeout(toast.t);toast.t=setTimeout(()=>t.innerHTML='',2200)}
+function libChanged(){markDirty('library');render()}
+
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act,k=b.dataset.k,ds=b.dataset;
+  if(armedEl&&armedEl!==b){armedEl.classList.remove('armed');armedEl.innerHTML=armedEl.dataset.orig;armedEl=null}
+  switch(a){
+    case 'view':if(ds.v==='docs'&&S.view==='docs')S.doc=null;if(ds.v==='lib'&&S.view==='lib')S.editSec=null;S.view=ds.v;savePrefs();render();APP.scrollTo(0,0);if(S.view==='week')setTimeout(scrollToday,150);break;
+    case 'five':S.five=!S.five;savePrefs();render();break;
+    case 'today':S.anchor=new Date();render();scrollToday();break;
+    case 'prev':case 'next':{const dir=a==='next'?1:-1;
+      S.anchor=S.view==='week'?addDays(S.anchor,7*dir):new Date(S.anchor.getFullYear(),S.anchor.getMonth()+dir,1);render();break}
+    case 'new':readInputs();openEditor(k,null,ds.back);break;
+    case 'edit':{const e=getDay(k).find(x=>x.id===ds.id);if(e)openEditor(k,e,S.sheet&&S.sheet.type==='day'?'day':null);break}
+    case 'toggle':{let msg='';setDay(k,getDay(k).map(e=>{if(e.id!==ds.id)return e;
+        if(!e.done&&!e.missed)return{...e,done:true,missed:false};
+        if(e.done){msg='Marked missed · tap again to reopen';return{...e,done:false,missed:true}}
+        return{...e,done:false,missed:false}}));if(msg)toast(msg);render();if(S.sheet&&S.sheet.type==='day')drawSheet();break}
+    case 'day':S.sheet={type:'day',k};drawSheet();break;
+    case 'close':{const s=S.sheet;if(s&&s.type==='edit'&&s.back==='day'){S.sheet={type:'day',k:s.k}}else S.sheet=null;drawSheet();break}
+    case 'pickcat':readInputs();if(S.sheet.cat!==ds.id){S.sheet.cat=ds.id;S.sheet.picks=new Set();S.sheet.ghost=null}drawSheet();break;
+    case 'pick':{readInputs();const it=catById(S.sheet.cat).groups[+ds.g].items[+ds.i];S.sheet.picks.has(it)?S.sheet.picks.delete(it):S.sheet.picks.add(it);drawSheet();break}
+    case 'dow':readInputs();{const i=+ds.i,s=S.sheet.dows;s.has(i)?s.delete(i):s.add(i);if(!s.size)s.add(i)}drawSheet();break;
+    case 'cleartime':S.sheet.time='';{const t=$('#f-time');if(t)t.value=''}break;
+    case 'save':saveEntry();break;
+    case 'scope':readInputs();S.sheet.scope=ds.v;drawSheet();break;
+    case 'mday':readInputs();S.sheet.mday=ds.v;drawSheet();break;
+    case 'rmode':readInputs();S.sheet.rmode=ds.v;drawSheet();break;
+    case 'status':readInputs();S.sheet.status=ds.v;drawSheet();break;
+    case 'delentry':if(arm(b,'Tap again to delete')){const s=S.sheet,orig=getDay(s.k).find(e=>e.id===s.id);
+      if(orig&&s.scope==='future'){const n=applyFuture(orig,s.k,()=>[]);if(n)toast(`Deleted this and ${n} future`)}
+      setDay(s.k,getDay(s.k).filter(e=>e.id!==s.id));
+      if(s.back==='day')S.sheet={type:'day',k:s.k};else S.sheet=null;drawSheet();render()}break;
+    case 'copyweek':{const s=mondayOf(S.anchor);let n=0;
+      const hasAny=[0,1,2,3,4,5,6].some(i=>getDay(keyOf(addDays(s,i))).length);
+      if(hasAny&&!arm(b,'This week has items. Tap again to add anyway'))break;
+      for(let i=0;i<7;i++){const src=getDay(keyOf(addDays(s,i-7)));if(!src.length)continue;const k2=keyOf(addDays(s,i));
+        setDay(k2,[...getDay(k2),...src.map(e=>({...e,id:rid(),done:false,missed:false,series:undefined}))]);n+=src.length}
+      toast(n?`Copied ${n} items`:'Last week was empty');render();break}
+    case 'export':exportIcs();break;
+    case 'color':{const c=lib().cats[+ds.c];c.slot=((typeof c.slot==='number'?c.slot:nearestSlot(c.color))+1)%PALETTE.length;c.color=PALETTE[c.slot];libChanged();break}
+    case 'delcat':if(arm(b,'Delete?')){lib().cats.splice(+ds.c,1);libChanged()}break;
+    case 'delgrp':if(arm(b,'Delete?')){lib().cats[+ds.c].groups.splice(+ds.g,1);libChanged()}break;
+    case 'mvcat':case 'mvgrp':{const L=lib(),arr=a==='mvcat'?L.cats:L.cats[+ds.c].groups,i=+(a==='mvcat'?ds.c:ds.g),j=i+(+ds.d);
+      if(j<0||j>=arr.length)break;[arr[i],arr[j]]=[arr[j],arr[i]];S.editItem=null;libChanged();break}
+    case 'opencat':{const O=S.openCats||(S.openCats=new Set());O.has(ds.id)?O.delete(ds.id):O.add(ds.id);render();break}
+    case 'opengrp':{const O=S.openGrps||(S.openGrps=new Set());O.has(ds.k)?O.delete(ds.k):O.add(ds.k);render();break}
+    case 'libtoggleall':{const O=S.openCats||(S.openCats=new Set());if(O.size){O.clear();S.openGrps&&S.openGrps.clear()}else lib().cats.forEach(c=>O.add(c.id));render();break}
+    case 'esec':S.editSec=ds.v;render();APP.scrollTo(0,0);break;
+    case 'eback':S.editSec=null;render();APP.scrollTo(0,0);break;
+    case 'openthemes':S.openThemes=!S.openThemes;render();break;
+    case 'tholiday':{S.meta={...(S.meta||{})};S.meta.holidayThemes=S.meta.holidayThemes===false;markDirty('meta');render();break}
+    case 'tseason':{S.meta={...(S.meta||{})};const se={...(S.meta.seasons||{})};se[ds.v]=!se[ds.v];S.meta.seasons=se;markDirty('meta');render();break}
+    case 'tpreview':S.preview=ds.v||null;render();break;
+    case 'openphotos':S.openPhotos=!S.openPhotos;S.photoSel=null;render();break;
+    case 'palbum':photos().active=ds.v;markDirty('photos');render();refreshSlides();break;
+    case 'pzoom':{const P=photos();P.zoom=P.zoom===false;markDirty('photos');render();refreshSlides();break}
+    case 'psel':S.photoSel=S.photoSel===ds.id?null:ds.id;render();break;
+    case 'pcrop':{const p=photos().photos.find(x=>x.id===S.photoSel);if(p){p.x=+ds.v;markDirty('photos');render();refreshSlides()}break}
+    case 'premove':if(arm(b,'Tap again to remove')){const P=photos(),p=P.photos.find(x=>x.id===ds.id);if(p){
+        if(p.asset&&ASSETS)ASSETS.delete(p.asset).catch(()=>{});P.photos=P.photos.filter(x=>x.id!==p.id);S.photoSel=null;markDirty('photos');render();refreshSlides()}}break;
+    case 'delalbum':{const P=photos(),a=P.albums[+ds.a];if(P.albums.length<2){toast('Keep at least one album');break}
+      const has=P.photos.some(p=>p.album===a);if(has&&!arm(b,'Photos move to '+P.albums.find(x=>x!==a)))break;
+      const to=P.albums.find(x=>x!==a);P.photos.forEach(p=>{if(p.album===a)p.album=to});P.albums=P.albums.filter(x=>x!==a);if(P.active===a)P.active=ALL;
+      markDirty('photos');render();refreshSlides();break}
+    case 'renitem':S.editItem={c:+ds.c,g:+ds.g,i:+ds.i};render();break;
+    case 'gotoedit':S.sheet=null;drawSheet();S.view='lib';S.editSec='acts';savePrefs();render();APP.scrollTo(0,APP.scrollHeight);{const n=$('input[data-add="cat"]');if(n)n.focus()}break;
+    case 'opendoc':S.sheet=null;drawSheet();S.view='docs';S.doc=ds.id;render();APP.scrollTo(0,0);break;
+    case 'zoom':S.zoom=!S.zoom;render();break;
+    case 'backup':backup();break;
+    case 'hideticker':try{localStorage.setItem('daybook:tickerhide',todayKey())}catch(e){}renderTicker();break;
+    case 'restoreok':applyRestore();break;
+    case 'restorecancel':S.pendingRestore=null;render();break;
+    case 'docback':S.doc=null;render();APP.scrollTo(0,0);break;
+    case 'delitem':lib().cats[+ds.c].groups[+ds.g].items.splice(+ds.i,1);libChanged();break;
+  }
+});
+document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.matches('input[data-add],input[data-edit]')){ev.preventDefault();addFrom(ev.target,true)}});
+document.addEventListener('change',ev=>{const t=ev.target;
+  if(t.matches('input[data-edit="album"]')){const v=t.value.trim(),P=photos(),old=P.albums[+t.dataset.a];
+    if(v&&v!==old&&!P.albums.includes(v)){P.albums[+t.dataset.a]=v;P.photos.forEach(p=>{if(p.album===old)p.album=v});if(P.active===old)P.active=v;markDirty('photos')}
+    setTimeout(render,0);return}
+  if(t.id==='p-speed'){photos().speed=+t.value;markDirty('photos');scheduleSlide();return}
+  if(t.id==='p-move'){const p=photos().photos.find(x=>x.id===t.dataset.id);if(p){p.album=t.value;markDirty('photos');render();refreshSlides()}return}
+  if(t.matches('input[data-upload]')&&t.files&&t.files.length){uploadPhotos([...t.files],t.dataset.upload);return}
+  if(t.matches('input[data-edit]')){const v=t.value.trim();if(!v){S.editItem=null;setTimeout(render,0);return}
+    const c=lib().cats[+t.dataset.c];
+    if(t.dataset.edit==='item'){const g=c.groups[+t.dataset.g];if(!g.items.includes(v))g.items[+t.dataset.i]=v;S.editItem=null;setTimeout(libChanged,0);return}
+    if(t.dataset.edit==='cat')c.name=v;else{const g=c.groups[+t.dataset.g],O=S.openGrps;if(O&&O.has(c.id+'|'+g.name)){O.delete(c.id+'|'+g.name);O.add(c.id+'|'+v)}g.name=v}markDirty('library')}
+  else if(t.matches('input[data-add]'))addFrom(t,false);
+  else if(t.id==='f-weeks')S.sheet.weeks=+t.value;
+  else if(t.id==='restore'&&t.files&&t.files[0]){t.files[0].text().then(txt=>{let o;try{o=JSON.parse(txt)}catch(e){}
+    if(!o||o.app!=='daybook'||!o.library||!o.months){toast("That file isn't a Daybook backup");return}
+    S.pendingRestore=o;render()})}
+});
+document.addEventListener('focusout',ev=>{if(ev.target.matches('input[data-edit="item"]'))setTimeout(()=>{if(S.editItem){S.editItem=null;render()}},0)});
+function addFrom(t,refocus){
+  if(t.matches('[data-edit]')){t.blur();return}
+  const v=t.value.trim();if(!v)return;
+  if(t.dataset.add==='album'){const P=photos();t.value='';if(!P.albums.includes(v)){P.albums.push(v);markDirty('photos')}render();
+    if(refocus){const n=document.querySelector('input[data-add="album"]');if(n)n.focus()}return}
+  if(t.dataset.add==='sheetitem'){t.value='';readInputs();const cat=catById(S.sheet.cat);if(!cat)return;let gi=+t.dataset.g;
+    if(gi<0){cat.groups.push({name:'Options',items:[]});gi=cat.groups.length-1}
+    const g=cat.groups[gi];const fresh=+t.dataset.g<0;
+    if(!g.items.includes(v)){g.items.push(v);S.sheet.picks.add(v);markDirty('library');
+      if(!fresh){const bt=document.createElement('button');bt.className='chip on';bt.style.setProperty('--c',catColor(cat));bt.dataset.act='pick';bt.dataset.g=gi;bt.dataset.i=g.items.length-1;bt.textContent=v;t.before(bt);if(!refocus)t.blur();return}}
+    drawSheet();
+    if(refocus){const n=document.querySelector(`input[data-add="sheetitem"][data-g="${gi}"]`);if(n)n.focus()}return}const L=lib(),ds=t.dataset,sel=`input[data-add="${ds.add}"]`+(ds.c!=null?`[data-c="${ds.c}"]`:'')+(ds.g!=null?`[data-g="${ds.g}"]`:'');
+  t.value='';
+  const OC=S.openCats||(S.openCats=new Set()),OG=S.openGrps||(S.openGrps=new Set());
+  if(ds.add==='cat'){const id=rid();L.cats.push({id,name:v,slot:L.cats.length%PALETTE.length,color:PALETTE[L.cats.length%PALETTE.length],groups:[]});OC.add(id);refocus=true}
+  else if(ds.add==='grp'){const c=L.cats[+ds.c];if(!c.groups.some(g=>g.name===v)){c.groups.push({name:v,items:[]});OG.add(c.id+'|'+v)}}
+  else{const g=L.cats[+ds.c].groups[+ds.g];if(g.items.includes(v))return;g.items.push(v);markDirty('library');
+    const ii=g.items.length-1,sp=document.createElement('span');sp.className='chip ed';
+    sp.innerHTML=`<button data-act="renitem" data-c="${ds.c}" data-g="${ds.g}" data-i="${ii}"></button><button class="x" data-act="delitem" data-c="${ds.c}" data-g="${ds.g}" data-i="${ii}" aria-label="Remove">&times;</button>`;
+    sp.firstChild.textContent=v;t.before(sp);if(!refocus)t.blur();return}
+  libChanged();
+  if(refocus){const n=document.querySelector(ds.add==='cat'?`input[data-add="grp"][data-c="${L.cats.length-1}"]`:ds.add==='grp'?`input[data-add="item"][data-c="${ds.c}"][data-g="${L.cats[+ds.c].groups.length-1}"]`:sel);if(n)n.focus()}
+}
+function scrollToday(){const el=document.getElementById('d-'+todayKey());if(el)el.scrollIntoView({block:'center',behavior:'smooth'})}
+
+init();
+</script>
+</body>
+</html>
