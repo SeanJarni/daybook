@@ -49,3 +49,5 @@ A web app can't schedule local notifications offline, and push needs a server an
 - Test on an iPhone-sized viewport in portrait and landscape, and in offline mode via the service worker.
 - Never use em dashes in UI text; Sean prefers plain hyphens.
 - Commit in small, described steps.
+- After changing any app file (HTML, CSS, JS, icons, images), run `tools/build-sw.ps1` before committing. It rewrites the file list and version hash in `sw.js`; without it, installed phones keep the old cached version.
+- Local testing: `tools/serve.ps1` (or the `daybook` entry in `.claude/launch.json`) serves the repo at http://localhost:8080. Stopping the server is a true offline test.
