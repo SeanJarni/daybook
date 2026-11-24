@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daybook</title>
+<meta name="theme-color" content="#2B1A35">
+<link rel="stylesheet" href="css/app.css">
+<script src="js/data.js" defer></script>
+<script src="js/themes.js" defer></script>
+<script src="js/util.js" defer></script>
+<script src="js/storage.js" defer></script>
+<script src="js/files.js" defer></script>
+<script src="js/app.js" defer></script>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="brand"><span class="logo"></span><b>Daybook</b><span class="grow"></span><span class="bdate" id="bdate"></span></div>
+  <div class="hpad">
+  <div class="tabs" id="tabs">
+    <button data-act="view" data-v="home">Home</button>
+    <button data-act="view" data-v="week">Week</button>
+    <button data-act="view" data-v="month">Month</button>
+    <button data-act="view" data-v="docs">Docs</button>
+    <button data-act="view" data-v="lib">Edit</button>
+  </div>
+  <div class="row nav" id="nav"></div>
+  </div>
+  <div id="ticker"></div>
+</header>
+<div id="banner"></div>
+<main id="main"><div class="empty">Loading your schedule...</div></main>
+<footer class="appfoot"><div class="fin">
+  <div><div class="fbrand"><span class="logo"></span><b>Daybook</b></div><p class="ftag">Make today yours.</p></div>
+  <nav class="fnav"><button data-act="view" data-v="home">Home</button><button data-act="view" data-v="week">Week</button><button data-act="view" data-v="month">Month</button><button data-act="view" data-v="docs">Docs</button><button data-act="view" data-v="lib">Edit</button><button data-act="backup">Back up data</button></nav>
+  <div class="fmeta">A Claude project by <b>Sean Jarnagin</b><br><span id="fstatus"></span></div>
+  <div class="fsmall"><span>&copy; 2026 Sean Jarnagin</span><span>Version 1.9 &middot; Atlanta, GA</span></div>
+</div></footer>
+</div>
+<div id="sheet"></div>
+<div id="toast"></div>
+
+<template id="doc-syllabus"><div class="doc-title"><div class="kicker">PHOTOGRAPHY SYLLABUS</div><h1>LIGHT &amp; LENS</h1><p class="lead">8-Week Light Mastery Cycle</p>
+<p class="meta">Nikon D7500 / D3400 | 8-Lens Kit | DJI Mini 2 | RAW Workflow</p><p class="motto">The lens serves the light. The light serves the story.</p><p class="meta">Organized by lighting scenario, not by lens.<br>2 long days/week (2-3 hours) | 2-3 short days/week (15-45 min)<br>Editing integrated, not deferred | Drone practice on weekends</p></div><h2 id="course-philosophy">Course Philosophy</h2>
+<p>The previous syllabus organized practice by lens. This one organizes by light. The difference matters: a lens rotation teaches you what glass can do. A light rotation teaches you what you can do with any glass in any condition. When you walk into a room, a venue, a landscape, the first question is never 'which lens?' It is 'where is the light, what is it doing, and how do I use it or change it?' The lens choice follows from that answer.</p>
+<p><strong>Your voice:</strong> You use light to create tension and narrative. You are drawn to selective illumination, silhouettes, dark negative space, and compositions where the viewer feels what is about to happen. This syllabus is designed to develop that voice while building the technical control to execute it reliably under any lighting condition.</p>
+<p><strong>The three pillars:</strong> (1) Light control - reading, shaping, and manipulating light with any tool available. This is the spine. (2) Viewer influence - understanding how composition, framing, and cropping direct emotion and attention. Woven into every assignment. (3) Lens fluency - knowing which lens to grab and why, earned through application under varied conditions rather than isolated rotation.</p>
+<h2 id="week-unit-schedule">8-Week Unit Schedule</h2>
+<p>Each week presents a lighting scenario. The assignments specify which lenses to use because certain lenses suit certain light. But the focus is the light, not the lens. By the end of the cycle, you will have worked every lens in your kit under the conditions that reveal its strengths and expose its limitations.</p>
+<h3 class="wk">Week 1: Window Light &amp; Indoor Natural</h3>
+<p><strong>Scenario:</strong> Soft directional light from windows. No artificial sources. Blinds, curtains, and time of day as your only modifiers.</p>
+<p><strong>Recommended Lenses:</strong> 50mm f/1.4 (portraits), Tokina 11-16mm (real estate interiors), 105mm Micro (detail/macro near windows)</p>
+<p><strong>Composition Focus:</strong> Frame subjects at the edge of light falloff. Place the brightest area where you want the viewer's eye. Practice negative space - let darkness occupy 40-60% of the frame.</p>
+<p><strong>Assignment:</strong> Shoot portraits of a person or cat positioned at varying distances from a window. Document how light quality changes as the subject moves 1ft, 3ft, 5ft from the glass. Separately, shoot one room of your house as a real estate interior using only window light - no lamps.</p>
+<h3 class="wk">Week 2: Golden Hour &amp; Backlight</h3>
+<p><strong>Scenario:</strong> The 45 minutes before sunset. Warm directional light. Backlighting with rim light and flare. The light you will shoot most client work in.</p>
+<p><strong>Recommended Lenses:</strong> 50mm f/1.4 (primary), 55-300mm (compressed backlit silhouettes), 35mm f/1.8 (environmental backlit portraits)</p>
+<p><strong>Composition Focus:</strong> Backlight separation - place the sun behind your subject and expose for the face. Use lens flare intentionally vs. avoiding it. Frame silhouettes where the shape tells the story without detail.</p>
+<p><strong>Assignment:</strong> Shoot a portrait session at golden hour. 3 frames backlit with rim light, 3 frames sidelit, 3 silhouettes. Separately, shoot a landscape at 200-300mm with silhouetted figures against the sunset. Compare how the 50mm and 300mm render the same backlit scene.</p>
+<h3 class="wk">Week 3: Harsh &amp; Overhead Light</h3>
+<p><strong>Scenario:</strong> Midday sun, direct overhead, hard shadows. The light most photographers avoid. You learn to use it or find shade within it.</p>
+<p><strong>Recommended Lenses:</strong> 35mm f/1.8 (street), 18-55mm kit zoom (versatility), Tokina 11-16mm (architecture shadows)</p>
+<p><strong>Composition Focus:</strong> Use shadows as compositional elements, not problems. Shadow lines as leading lines. Contrast between lit and unlit areas to direct attention. Hard light on texture (brick, concrete, bark).</p>
+<p><strong>Assignment:</strong> Shoot 10 frames where the shadow is the subject, not the object casting it. Shoot a portrait in open shade with harsh sun 2 feet behind the shade line - expose for the face, let the background blow. Shoot one architectural subject where the shadow pattern is more interesting than the building.</p>
+<h3 class="wk">Week 4: Overcast &amp; Diffused Light</h3>
+<p><strong>Scenario:</strong> Flat, even light. No shadows. No drama from the sky. The challenge is creating mood when nature gives you none. Also the most flattering portrait light.</p>
+<p><strong>Recommended Lenses:</strong> 50mm f/1.4 (portraits - use aperture for depth separation since light will not help), 105mm Micro (macro - overcast is ideal for detail work), Laowa 100mm 2:1 (extreme macro)</p>
+<p><strong>Composition Focus:</strong> Without light contrast to guide the eye, composition carries everything. Color contrast, texture contrast, and subject isolation through depth of field become your tools. Practice minimalism - fewer elements, stronger statement.</p>
+<p><strong>Assignment:</strong> Shoot a portrait session on an overcast day. Make the images feel moody despite flat light through composition and aperture choices alone. Separately, shoot macro work outdoors - overcast eliminates harsh reflections on small subjects. 10 frames with each macro lens, compare 1:1 vs 2:1 magnification.</p>
+<h3 class="wk">Week 5: Low Light &amp; Night</h3>
+<p><strong>Scenario:</strong> After sunset, indoor dim conditions, street lights, moonlight. High ISO territory. Tripod mandatory. This is where your camera's limits become real.</p>
+<p><strong>Recommended Lenses:</strong> 50mm f/1.4 (fastest glass, lowest ISO needed), 35mm f/1.8 (street at night), 200-500mm f/5.6 (moon, astrophotography), Tokina 11-16mm f/2.8 (night sky wide field)</p>
+<p><strong>Composition Focus:</strong> Light sources become subjects - street lamps, windows, car lights, the moon. Frame around points of light in darkness. Use long exposure to create light trails and star movement. Isolate illuminated subjects against dark negative space.</p>
+<p><strong>Assignment:</strong> Shoot a cityscape or street scene after dark with the 35mm - use available light only, push ISO and find your camera's noise ceiling. Separately, shoot the moon at 500mm on a tripod. Shoot a 20-second exposure of the night sky with the Tokina. Three completely different approaches to darkness in one session.</p>
+<h3 class="wk">Week 6: Mixed &amp; Artificial Light</h3>
+<p><strong>Scenario:</strong> Indoor scenes with multiple light sources at different color temperatures. Tungsten lamps, LED overhead, daylight from windows, all in one frame. The hardest white balance scenario.</p>
+<p><strong>Recommended Lenses:</strong> Tokina 11-16mm (real estate - this is the exact scenario you face in every property), 50mm f/1.4 (indoor portraits under mixed light), 18-55mm kit zoom (versatility for problem-solving)</p>
+<p><strong>Composition Focus:</strong> Identify the dominant light source and expose for it. Accept that mixed light means some areas will be warm and some cool - use that contrast intentionally rather than fighting it.</p>
+<p><strong>Assignment:</strong> Shoot a full real estate walkthrough of your house with every light on and every blind open. Set Kelvin manually and keep it consistent across all rooms. Separately, shoot a portrait under mixed lighting - one side of the face lit by warm lamp, other side by cool window. Make it look intentional, not accidental.</p>
+<h3 class="wk">Week 7: Practical &amp; Creative Light</h3>
+<p><strong>Scenario:</strong> You provide the light. Phone flashlight, headlamp, candles, colored materials, reflectors, speedlight. This is your voice week - dark mood, selective illumination, narrative tension.</p>
+<p><strong>Recommended Lenses:</strong> 50mm f/1.4 (portraits with dramatic practical light), 105mm Micro (illuminated details), 35mm f/1.8 (environmental scenes with creative lighting)</p>
+<p><strong>Composition Focus:</strong> Light only what matters. Let everything else fall to darkness. The viewer's eye goes where the light is - use that to tell a story. Practice light painting with long exposures. Color cast from materials to set mood.</p>
+<p><strong>Assignment:</strong> Pre-visualize 5 specific frames before touching the camera. Set each one up deliberately - choose the light position, the color, the exposure time. Separately, shoot a portrait lit only by a single practical light source (lamp, candle, phone). Make it feel cinematic, not accidental.</p>
+<h3 class="wk">Week 8: Client Simulation &amp; Field Test</h3>
+<p><strong>Scenario:</strong> No controlled conditions. You show up, assess the light, choose the lens, solve problems in real time. This week tests everything from weeks 1-7 under pressure.</p>
+<p><strong>Recommended Lenses:</strong> Bring your full kit. Choose the right lens for each scenario without being told which one to use.</p>
+<p><strong>Composition Focus:</strong> Apply everything. Every frame should demonstrate a deliberate lighting choice, a deliberate composition choice, and a deliberate lens choice. If you cannot articulate all three before pressing the shutter, do not press it.</p>
+<p><strong>Assignment:</strong> Three assignments: (1) Shoot a portrait session with a willing subject - direct them, manage the light, deliver 15-20 edited frames. (2) Shoot a complete real estate walkthrough of a property you have not previously photographed. (3) Shoot one creative personal project applying your voice - moody, narrative, tension-driven. Review all three sets and self-assess.</p>
+<h2 id="weekly-structure">Weekly Structure</h2>
+<p>You have two long days (2-3 hours each) and two to three short days (15-45 minutes each) per week. Editing is integrated into the schedule, not saved for Sunday. The backlog problem from the previous cycle ends here.</p>
+<div class="tw"><table>
+
+<tbody>
+<tr class="odd">
+<td><strong>Day Type</strong></td>
+<td><strong>Block</strong></td>
+<td><strong>Activity</strong></td>
+</tr>
+<tr class="even">
+<td><strong>Long Day (2x/week)</strong></td>
+<td>Shoot Block (60-90 min)</td>
+<td>Primary lighting scenario practice per weekly unit. Bring the recommended lenses. Shoot 20-40 intentional frames. Every frame has a named lighting decision and composition decision.</td>
+</tr>
+<tr class="odd">
+<td><strong>Long Day (2x/week)</strong></td>
+<td>Edit Block (45-60 min)</td>
+<td>Same day if possible, next day at latest. Cull to top 10, edit top 5, write one-sentence note per edited frame: what lighting choice did I make and did it work?</td>
+</tr>
+<tr class="even">
+<td><strong>Long Day (2x/week)</strong></td>
+<td>Drone Block (20-30 min)</td>
+<td>Weekend long day only. Flight practice, composition from altitude, understanding how aerial light differs from ground level. Log flight hours toward Part 107 comfort.</td>
+</tr>
+<tr class="odd">
+<td><strong>Short Day (2-3x/week)</strong></td>
+<td>Quick Shoot (15-45 min)</td>
+<td>One focused exercise from the weekly unit. 5-10 frames with one specific lighting challenge. Use whatever lens the scenario demands.</td>
+</tr>
+<tr class="even">
+<td><strong>Short Day (2-3x/week)</strong></td>
+<td>Quick Edit (15 min)</td>
+<td>Cull and rate previous session. Do not let the backlog grow past two sessions. If behind on editing, this is edit-only - no shooting.</td>
+</tr>
+</tbody>
+</table></div>
+<h3>The Backlog Rule</h3>
+<p>If you have more than two unprocessed shooting sessions, your next session is an edit session, not a shooting session. No exceptions. Shooting without reviewing is collecting data you never learn from. The feedback loop between shooting and editing is where skill compounds. Break the loop and you are just accumulating hard drive clutter.</p>
+<h3>Drone Practice</h3>
+<p>DJI Mini 2. Weekend long days only, 20-30 minutes per session. Focus on smooth flight, composition from altitude, and understanding how aerial perspective changes the relationship between foreground, midground, and background. Log every flight. Part 107 certification is in progress - until it is complete, no commercial use of aerial footage.</p>
+<h2 id="lens-reference">Lens Reference</h2>
+<p>Eight lenses. Each one has a role. This table is your field guide for deciding which lens to grab when you walk into a scenario.</p>
+<div class="tw"><table>
+
+<tbody>
+<tr class="odd">
+<td><strong>Lens</strong></td>
+<td><strong>Equiv.</strong></td>
+<td><strong>Role</strong></td>
+<td><strong>Notes</strong></td>
+</tr>
+<tr class="even">
+<td><strong>35mm f/1.8G DX</strong></td>
+<td>~52mm</td>
+<td>Street, environmental portraits, daily carry</td>
+<td>Your natural eye. Use when you want context and environment around the subject.</td>
+</tr>
+<tr class="odd">
+<td><strong>50mm f/1.4G FX</strong></td>
+<td>~75mm</td>
+<td>Portraits, low light, shallow DOF</td>
+<td>Your money lens for client work. Fastest glass in the kit. First choice for any portrait or low-light scenario.</td>
+</tr>
+<tr class="even">
+<td><strong>18-55mm f/3.5-5.6 VR DX</strong></td>
+<td>~27-82mm</td>
+<td>Versatile problem-solver</td>
+<td>When unsure which prime to grab, this lens finds the focal length first. Variable aperture limits low-light use.</td>
+</tr>
+<tr class="odd">
+<td><strong>Tokina 11-16mm f/2.8 CF DX</strong></td>
+<td>~16-24mm</td>
+<td>Real estate, landscape, architecture, night sky</td>
+<td>Your weakest lens compositionally. Requires strong foreground interest. Every real estate shoot starts here.</td>
+</tr>
+<tr class="even">
+<td><strong>55-300mm f/4.5-5.6G ED VR DX</strong></td>
+<td>~82-450mm</td>
+<td>Telephoto compression, wildlife, portraits</td>
+<td>Your natural strength. Compressed backgrounds, isolated subjects, mountain layers. Needs good light.</td>
+</tr>
+<tr class="odd">
+<td><strong>200-500mm f/5.6E VR FX</strong></td>
+<td>~300-750mm</td>
+<td>Wildlife, moon, extreme reach</td>
+<td>Specialist. Tripod or monopod mandatory. Use for subjects you cannot physically approach.</td>
+</tr>
+<tr class="even">
+<td><strong>Nikon 105mm f/2.8D Micro FX</strong></td>
+<td>~157mm</td>
+<td>Macro 1:1, ring detail, portraits</td>
+<td>Doubles as a portrait lens at 157mm equivalent. Primary macro for jewelry, rings, flowers, insects.</td>
+</tr>
+<tr class="odd">
+<td><strong>Laowa 100mm f/2.8 2:1 FX</strong></td>
+<td>~150mm</td>
+<td>Extreme macro 2:1</td>
+<td>Manual focus only. Double life-size magnification. For when 1:1 is not close enough.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="real-estate-integration">Real Estate Integration</h2>
+<p>Real estate photography is not a separate practice track. It is embedded in the weekly units where it belongs. Weeks 1, 3, 6, and 8 contain dedicated real estate assignments because those weeks present the lighting conditions you will encounter in actual property shoots: window light (Week 1), harsh contrast between interior and exterior (Week 3), mixed artificial and natural sources (Week 6), and the full simulation (Week 8).</p>
+<p><strong>Standard real estate settings:</strong> Tokina 11-16mm at f/7.1-f/9. Manual mode. ISO 100. Tripod at chest height. Manual Kelvin white balance locked for the entire property. HDR bracketing (-2, 0, +2) for rooms with bright windows. Virtual horizon on. Shoot from corners. Three walls visible. Stage before shooting.</p>
+<p>By the end of one 8-week cycle, you will have shot your own house under four different lighting conditions. By cycle two, you should be shooting other properties.</p>
+<h2 id="pre-session-protocol">Pre-Session Protocol</h2>
+<p>Before every shoot, answer these five questions. If you cannot answer all five, you are not ready to press the shutter.</p>
+<ol type="1">
+<li><p><strong>What is the light doing?</strong> Direction, quality (hard/soft), color temperature. Read it before raising the camera.</p></li>
+<li><p><strong>What story am I telling?</strong> What should the viewer feel when they see this frame? Name the emotion or narrative before composing.</p></li>
+<li><p><strong>Why this lens?</strong> Articulate why the lens on your camera right now is the right tool for this light and this story. If you cannot, switch.</p></li>
+<li><p><strong>What is in the background?</strong> Check behind your subject before pressing the shutter. Move if something competes with or distracts from your story.</p></li>
+<li><p><strong>What settings and why?</strong> Aperture, shutter, ISO. Each one should be a deliberate decision, not a default. If you are in auto-anything, know why.</p></li>
+</ol>
+<h2 id="progression-milestones">Progression Milestones</h2>
+<h3>Cycle 1 Complete (Week 8)</h3>
+<p>You can walk into any lighting scenario and identify the dominant light source, its direction, and its quality within 15 seconds. You know which lens to grab for each commercial scenario without deliberating. You can produce a consistent set of real estate images under mixed lighting. Your portrait work in golden hour is reliable. You have a growing body of personal work that reflects your voice - moody, narrative, tension-driven. Your editing backlog never exceeds two sessions.</p>
+<h3>Cycle 2 Complete (Week 16)</h3>
+<p>You can shape light, not just read it. Speedlight on camera and off camera is comfortable. You can manage a full portrait session directing a subject through poses, locations, and lighting changes. Your real estate work is consistent enough to show agents. Your drone footage is composed and smooth. Part 107 is complete. Your portfolio has enough depth to support a website launch.</p>
+<h3>Cycle 3 Complete (Week 24)</h3>
+<p>You are booking paid work. Engagement sessions, real estate listings, or second-shooting weddings. The camera and lighting decisions are invisible to you during a shoot - all of your attention is on the subject and the story. Your voice is recognizable across your portfolio. You are a photographer, not someone who owns a camera.</p>
+<h2 id="final-note">Final Note</h2>
+<p>The first syllabus taught you how to operate a camera. This one teaches you how to see. The difference between a technician and a photographer is that the technician executes settings and the photographer tells stories. You have the technical foundation. Now the work is learning to control the single most important variable in every photograph: light.</p>
+<p><strong>The lens is the instrument. Light is the music. Learn to hear it.</strong></p>
+</template>
+<template id="doc-nikkor"><div class="doc-title"><div class="kicker">Nikon</div><h1>NIKKOR Lens Nomenclature</h1><p class="lead">F-Mount Designation Reference</p></div><h2>Your Lenses Decoded</h2><div class="term"><b>AF-S NIKKOR 200-500mm f/5.6E ED VR</b><p>In-lens AF motor. FX format. 200-500mm zoom range. f/5.6 constant aperture. Electronic diaphragm (E). Extra-low dispersion glass. Vibration Reduction stabilization. No aperture ring.</p></div><div class="term"><b>AF-S NIKKOR 50mm f/1.4G</b><p>In-lens AF motor. FX format. 50mm prime. f/1.4 fast aperture. No aperture ring (G). On your DX body, acts like a 75mm portrait lens.</p></div><div class="term"><b>AF-S DX NIKKOR 35mm f/1.8G</b><p>In-lens AF motor. DX crop format - designed for your sensor. 35mm prime. f/1.8 fast aperture. No aperture ring. On DX, acts like a 52.5mm normal lens.</p></div><div class="term"><b>AF-P DX NIKKOR 18-55mm f/3.5-5.6G VR</b><p>Stepping motor AF (quiet, fast). DX format kit lens. Variable aperture zoom: f/3.5 at 18mm, f/5.6 at 55mm. No aperture ring. VR stabilization.</p></div><div class="term"><b>Tokina atx-i 11-16mm f/2.8 CF</b><p>Third-party (Tokina). DX ultra-wide zoom. Constant f/2.8 aperture. CF = Compact Focus. Uses body screw-drive AF motor - works on D7500.</p></div><div class="term"><b>AF NIKKOR 50mm f/1.8D</b><p>Body screw-drive AF (no in-lens motor). FX format. 50mm prime. f/1.8 aperture. D-type: has aperture ring + sends distance data. The &quot;nifty fifty&quot; classic.</p></div><h2>Quick Decision Guide</h2><div class="term"><b class="code">D vs G vs E</b><p>D has an aperture ring (lock it at smallest number). G removed the ring. E added electronic control for faster, more precise operation. Evolution: D -&gt; G -&gt; E.</p></div><div class="term"><b class="code">AF vs AF-S</b><p>Both are F-mount. AF relies on a motor in the camera body (shaft-driven). AF-S has its own motor - quieter, faster, works on every body including entry-level.</p></div><div class="term"><b class="code">DX on FX</b><p>Usable in DX crop mode (body auto-detects). You get fewer megapixels. FX on DX always works - you just use the center of the image circle.</p></div><h2>Focus Motor &amp; Mount Type</h2><div class="term"><b class="code">AI / AI-S</b><p>Manual focus. Mechanical aperture coupling to body meter. AI-S adds linear aperture response for program/shutter-priority modes.</p><p class="note">No autofocus. Aperture ring on lens.</p></div><div class="term"><b class="code">AF</b><p>Autofocus driven by the camera body&#x27;s screw-drive motor (via the coupling shaft in the mount). Requires a body with a built-in AF motor.</p><p class="note">D7500 has a body motor - these lenses will autofocus on it. Entry-level bodies (D3x00/D5x00) do not.</p></div><div class="term"><b class="code">AF-S</b><p>Silent Wave Motor built into the lens. Full-time manual focus override - turn the ring anytime without switching to M. Autofocuses on all Nikon bodies.</p><p class="note">Most common modern F-mount designation. Still F-mount, not a separate mount.</p></div><div class="term"><b class="code">AF-P</b><p>Stepping motor. Smoother, quieter, faster - optimized for video AF. Requires newer bodies for full menu control.</p><p class="note">D7500 fully compatible. Found on newer kit lenses (10-20mm, 18-55mm, 70-300mm).</p></div><div class="term"><b class="code">AF-I</b><p>Predecessor to AF-S. Internal coreless motor. Rare - only a few long telephoto lenses used this before AF-S replaced it.</p><p class="note">Obsolete. You won&#x27;t encounter these unless buying vintage superteles.</p></div><h2>Sensor Format</h2><div class="term"><b class="code">DX</b><p>Designed for crop-sensor bodies (23.5x15.6mm, 1.5x crop factor). Smaller image circle - will vignette heavily on full-frame bodies.</p><p class="note">Your D7500 is a DX body. DX lenses are native to it.</p></div><div class="term"><b class="code">FX</b><p>Designed for full-frame (36x24mm). Larger image circle covers both FX and DX sensors. On DX, the center is cropped, giving the 1.5x reach bonus.</p><p class="note">Your 50mm f/1.4 and 200-500mm f/5.6E are FX lenses working on your DX body.</p></div><h2>Aperture Control Type</h2><div class="term"><b class="code">D</b><p>Sends distance information to the body for 3D Matrix Metering and i-TTL flash. Has a physical aperture ring on the lens barrel.</p><p class="note">Set the ring to the smallest number (highest f-stop) and lock it - control aperture from the camera body dial.</p></div><div class="term"><b class="code">G</b><p>No aperture ring. Aperture is controlled entirely through the camera body command dial. Also sends distance data like D-type.</p><p class="note">The &quot;G&quot; effectively replaced the &quot;D&quot; designation. Most modern F-mount lenses are G-type.</p></div><div class="term"><b class="code">E</b><p>Electronic aperture control (electromagnetic diaphragm). No mechanical aperture lever - the body controls the aperture electronically via contacts.</p><p class="note">Found on newer pro lenses. Your 200-500mm f/5.6E uses this. More precise aperture control during bursts.</p></div><h2>Optical Element Codes</h2><div class="term"><b class="code">ED</b><p>Extra-low Dispersion glass. Reduces chromatic aberration (color fringing), especially at telephoto focal lengths.</p><p class="note">Very common on telephoto and zoom lenses. Look for this on anything over 70mm.</p></div><div class="term"><b class="code">FL</b><p>Fluorite lens element. Even lower dispersion than ED with less weight. Premium optical element found on high-end telephotos.</p><p class="note">Lighter than ED at the same correction quality. Seen on 500mm f/5.6E PF, 800mm f/5.6E FL.</p></div><div class="term"><b class="code">ASP</b><p>Aspherical lens element. Corrects spherical aberration and distortion, especially in wide-angle and wide-aperture lenses.</p><p class="note">Allows sharper performance with fewer total elements, keeping the lens lighter.</p></div><div class="term"><b class="code">N</b><p>Nano Crystal Coat. Nikon&#x27;s premium anti-reflective coating. Dramatically reduces ghosting and flare from point light sources.</p><p class="note">Found on pro-grade lenses. Gold &quot;N&quot; badge on the lens barrel.</p></div><div class="term"><b class="code">IF</b><p>Internal Focusing. The lens does not change physical length during focus. The front element stays stationary.</p><p class="note">Important for filters (polarizers won&#x27;t spin) and macro work (won&#x27;t bump the subject). Faster AF, better balance.</p></div><div class="term"><b class="code">RF</b><p>Rear Focusing. Focus group is at the back of the lens. Similar benefits to IF - fast, compact focus travel.</p><p class="note">Less common designation. Mostly seen on older AF tele lenses.</p></div><div class="term"><b class="code">CRC</b><p>Close-Range Correction. Floating element design optimizes sharpness at close focus distances, not just infinity.</p><p class="note">Found on some wide-angles and macro lenses. Improves near-subject performance.</p></div><div class="term"><b class="code">DC</b><p>Defocus Control. A ring on the lens controls the quality (not amount) of background or foreground blur.</p><p class="note">Only on 105mm f/2 DC and 135mm f/2 DC. Niche portrait lenses.</p></div><div class="term"><b class="code">PF</b><p>Phase Fresnel element. Uses diffraction to correct chromatic aberration instead of heavy ED/FL glass. Dramatically reduces size and weight.</p><p class="note">The 300mm f/4E PF and 500mm f/5.6E PF are remarkably portable superteles because of this.</p></div><h2>Stabilization</h2><div class="term"><b class="code">VR</b><p>Vibration Reduction. Optical image stabilization - a gyro-sensor detects shake and a floating lens group compensates in real time.</p><p class="note">Typically gives 3-4 stops of handheld advantage. Critical for telephoto, useful for video.</p></div><div class="term"><b class="code">VR II</b><p>Second-generation VR system. Improved stabilization performance - usually rated at 4+ stops of correction.</p><p class="note">Found on newer telephoto zooms like the 70-200mm f/2.8E FL ED VR.</p></div><h2>Specialty Designations</h2><div class="term"><b class="code">Micro</b><p>Nikon&#x27;s term for macro. Capable of at least 1:1 reproduction ratio (life-size on the sensor). Optimized for close-focus sharpness.</p><p class="note">Nikon says &quot;Micro&quot; where everyone else says &quot;Macro.&quot; Same thing.</p></div><div class="term"><b class="code">PC-E</b><p>Perspective Control with Electronic aperture. Tilt-shift lens for architecture and product photography. Corrects converging verticals.</p><p class="note">Manual focus only. Used in real estate and architectural work to keep buildings straight.</p></div><div class="term"><b class="code">TC</b><p>Teleconverter. Multiplies focal length (1.4x, 1.7x, or 2x) at the cost of light loss and some sharpness. Mounts between body and lens.</p><p class="note">TC-14E III (1.4x, loses 1 stop), TC-20E III (2x, loses 2 stops). Only works with certain AF-S/AF-I teles.</p></div><h2>Decoded Example</h2><p class="decode">AF-S VR Micro-NIKKOR 105mm f/2.8G IF-ED</p><div class="term row2"><b class="code">AF-S</b><p>Silent Wave Motor - in-lens AF, works on all bodies</p></div><div class="term row2"><b class="code">VR</b><p>Vibration Reduction optical stabilization</p></div><div class="term row2"><b class="code">Micro</b><p>Macro lens - 1:1 life-size reproduction</p></div><div class="term row2"><b class="code">105mm</b><p>Focal length (157.5mm equivalent on DX)</p></div><div class="term row2"><b class="code">f/2.8</b><p>Maximum aperture - how wide the diaphragm opens</p></div><div class="term row2"><b class="code">G</b><p>No aperture ring - body dial controls aperture</p></div><div class="term row2"><b class="code">IF</b><p>Internal Focusing - length stays fixed, front won&#x27;t spin</p></div><div class="term row2"><b class="code">ED</b><p>Extra-low Dispersion glass - reduces color fringing</p></div><p class="fine">NIKKOR &amp; Nikon are trademarks of Nikon Corporation. Reference compiled for personal use.</p></template>
+</body>
+</html>
