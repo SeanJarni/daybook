@@ -91,8 +91,10 @@ main{padding:12px calc(14px + var(--sr)) 24px calc(14px + var(--sl))}
 .summary{display:flex;gap:10px;align-items:center;margin:0 0 12px}
 .bar{flex:1;height:6px;background:var(--soft);border-radius:4px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--grad);background-size:200px 100%;border-radius:4px;transition:width .3s}
-.week{display:grid;gap:10px;grid-template-columns:1fr}
+.week{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
 @media (min-width:760px){.week{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}}
+.day,.glass,.libcat,.month{min-width:0;max-width:100%}
+.item .t{min-width:0;flex-wrap:wrap}
 .day{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px 8px}
 .day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
 .dh{display:flex;align-items:center;gap:8px;margin-bottom:4px}
@@ -289,3 +291,17 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .hero{min-height:calc(100vh - 118px - var(--st));min-height:calc(100dvh - 118px - var(--st))}
 #app:has(.ticker) .hero{min-height:calc(100vh - 150px - var(--st));min-height:calc(100dvh - 150px - var(--st))}
 .hero-in{padding-bottom:calc(26px + var(--sb))}
+
+/* reschedule */
+.ctag{font-size:11px;font-weight:700;color:var(--mute);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 7px;white-space:nowrap}
+.hero .glass .ctag{color:rgba(255,255,255,.85);background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2)}
+.rsgo{width:100%;margin-top:10px;background:var(--btn);color:#fff;border:0}
+.makeup{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--danger);border-radius:12px;padding:10px 12px;margin:0 0 12px}
+.makeup b{font-size:15px}.makeup span{color:var(--mute);font-size:13px;flex:1}.makeup i{font-style:normal;font-size:22px;color:var(--mute)}
+.blist{display:grid;gap:6px;margin-top:10px}
+.brow{display:flex;align-items:center;gap:10px;text-align:left;padding:9px 10px;border-radius:12px;border:1px solid var(--line);background:var(--card);width:100%;min-width:0}
+.brow .grow{min-width:0}.brow b{display:block;font-size:14px}.brow .sub{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bchk{width:24px;height:24px;border-radius:7px;border:2px solid var(--c,var(--mute));flex:none;display:grid;place-items:center}
+.bchk svg{width:13px;height:13px}
+.brow.on .bchk{background:var(--c,var(--accent))}
+input[type=date]{max-width:60%}

@@ -92,7 +92,7 @@ function render(){
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.view));
   applyTheme();renderNav();renderTicker();
   {const f=$('#fstatus');if(f){const lb=S.meta&&S.meta.lastBackup;const fmt=k=>{const d=parse(k);return `${MON[d.getMonth()]} ${d.getDate()}`};
-    f.textContent='Saved on this device · '+(lb?`Last backup ${fmt(lb)}`:'No backup yet')}}
+    f.textContent=lb?`Last backup ${fmt(lb)}`:'No backup yet'}}
   const now=new Date();$('#bdate').textContent=`${DOW[(now.getDay()+6)%7]}, ${MON[now.getMonth()]} ${now.getDate()}`;
   const main=$('#main');main.classList.toggle('home',S.view==='home'&&S.ready);
   if(!S.ready){main.innerHTML='<div class="empty">Loading your schedule...</div>';return}
@@ -122,7 +122,7 @@ function itemRow(k,e){
   return `<div class="item ${e.done?'done':e.missed?'missed':''}" style="--c:${esc(v.color)}">
     <button class="chk" data-act="toggle" data-k="${k}" data-id="${esc(e.id)}" aria-label="Change status">${e.missed?XMARK:CHECK}</button>
     <button class="body" data-act="edit" data-k="${k}" data-id="${esc(e.id)}">
-      <div class="t"><span>${esc(v.name)}</span>${e.time?`<span class="tm">${fmtTime(e.time)}</span>`:''}${e.missed?'<span class="mtag">Missed</span>':''}</div>
+      <div class="t"><span>${esc(v.name)}</span>${e.time?`<span class="tm">${fmtTime(e.time)}</span>`:''}${e.missed?'<span class="mtag">Missed</span>':''}${e.carriedTo?`<span class="ctag">Made up ${esc(tagDay(e.carriedTo))}</span>`:''}${e.from?`<span class="ctag">From ${esc(tagDay(e.from))}</span>`:''}</div>
       ${sub?`<div class="d">${esc(sub)}</div>`:''}
     </button></div>`;
 }
@@ -140,8 +140,8 @@ function renderWeek(main){
       ${items.length?items.map(e=>itemRow(k,e)).join(''):`<button class="none" data-act="new" data-k="${k}">Nothing planned. Tap + to add.</button>`}
     </section>`;
   }
-  const pct=tot?Math.round(dn/tot*100):0;
-  main.innerHTML=`<div class="summary"><span class="sub">${dn} of ${tot} done${ms?` · ${ms} missed`:''}</span><div class="bar"><i style="width:${pct}%"></i></div><span class="sub">${pct}%</span></div>
+  const pct=tot?Math.round(dn/tot*100):0,owed=missedIn(keyOf(s)).length;
+  main.innerHTML=`${owed?`<button class="makeup" data-act="batch"><b>Make up missed</b><span>${owed} item${owed===1?'':'s'} this week</span><i>&#8250;</i></button>`:''}<div class="summary"><span class="sub">${dn} of ${tot} done${ms?` · ${ms} missed`:''}</span><div class="bar"><i style="width:${pct}%"></i></div><span class="sub">${pct}%</span></div>
     <div class="week">${html}</div>
     <div class="wfoot"><button class="btn" data-act="copyweek">Copy last week's plan here</button>
     <button class="btn" data-act="export">Send to phone calendar</button></div>`;
@@ -349,7 +349,7 @@ function openEditor(k,entry,back){
   const fut=entry?new Set(futureOf(entry,k)).size:0;
   const d=parse(k);
   S.sheet={type:'edit',k,back,id:entry?entry.id:null,cat:entry?entry.cat:null,picks:new Set(entry?entry.picks||[]:[]),
-    note:entry?entry.note||'':'',time:entry?entry.time||'':'',dows:new Set([(d.getDay()+6)%7]),weeks:1,rmode:'weekly',months:12,mday:'date',scope:'one',fut,status:entry?(entry.done?'done':entry.missed?'missed':'open'):'open',ghost:entry&&!catById(entry.cat)?{name:entry.catName,color:slotColors()[nearestSlot(fixC(entry.color))]}:null};
+    note:entry?entry.note||'':'',time:entry?entry.time||'':'',dows:new Set([(d.getDay()+6)%7]),weeks:1,rmode:'weekly',months:12,mday:'date',scope:'one',fut,rsm:entry&&!entry.done&&(entry.missed||k<todayKey())?'copy':'move',rto:null,status:entry?(entry.done?'done':entry.missed?'missed':'open'):'open',ghost:entry&&!catById(entry.cat)?{name:entry.catName,color:slotColors()[nearestSlot(fixC(entry.color))]}:null};
   drawSheet();
 }
 function drawSheet(){
@@ -364,6 +364,24 @@ function drawSheet(){
       <div class="sh-head"><b>${title}</b><button data-act="close">Done</button></div>
       <div class="sh-body">${items.length?items.map(e=>itemRow(s.k,e)).join(''):'<div class="empty">Nothing planned.</div>'}</div>
       <div class="sh-foot"><button class="primary" data-act="new" data-k="${s.k}" data-back="day">+ Add</button></div></div></div>`;
+    return;
+  }
+  if(s.type==='batch'){
+    const list=missedIn(s.monK),n=list.filter(x=>s.sel.has(x.k+'|'+x.e.id)).length;
+    el.innerHTML=`<div class="sheet-wrap"><div class="sheet-bg" data-act="close"></div><div class="sheet"><div class="grab"></div>
+      <div class="sh-head"><b>Make up missed</b><button data-act="close">Cancel</button></div>
+      <div class="sh-body">
+        <div class="sub" style="margin-top:6px">Pick what to catch up on, then choose a day.</div>
+        <div class="blist">${list.map(({k,e})=>{const v=view(e),id=k+'|'+e.id,on=s.sel.has(id);return `<button class="brow ${on?'on':''}" style="--c:${esc(v.color)}" data-act="bsel" data-v="${esc(id)}">
+          <span class="bchk">${on?CHECK:''}</span><span class="grow"><b>${esc(v.name)}</b><span class="sub">${esc(shortDay(k))}${e.time?' · '+fmtTime(e.time):''}${(e.picks||[]).length?' · '+esc(e.picks.join(', ')):''}</span></span></button>`}).join('')}</div>
+        <div class="row" style="margin-top:6px"><button class="pill" data-act="ball">${n===list.length?'Select none':'Select all'}</button></div>
+        <div class="lbl">How</div>
+        <div class="seg"><button class="${s.mode==='copy'?'on':''}" data-act="bmode" data-v="copy">Make up</button><button class="${s.mode==='move'?'on':''}" data-act="bmode" data-v="move">Move</button></div>
+        <div class="sub">${s.mode==='copy'?'Keeps each one as missed on its day and adds a copy to the new day.':'Takes each one off its day and puts it on the new day. No record is left.'}</div>
+        <div class="lbl">To</div><div class="chips">${dayChips(s.to,'bday')}</div>
+        <div class="row" style="margin-top:8px"><span class="sub grow">Or pick a date</span><input type="date" id="b-date" value="${s.to||''}"></div>
+      </div>
+      <div class="sh-foot"><button class="primary" data-act="bgo" ${n&&s.to?'':'disabled'}>${n&&s.to?`${s.mode==='copy'?'Make up':'Move'} ${n} on ${esc(shortDay(s.to))}`:'Choose items and a day'}</button></div></div></div>`;
     return;
   }
   const L=lib(),cat=catById(s.cat),edit=!!s.id;
@@ -391,6 +409,12 @@ function drawSheet(){
       <div class="lbl">Activity${({photo:'syllabus',it:'it',uk:'uk'})[s.cat]?`<button class="doclink" data-act="opendoc" data-id="${({photo:'syllabus',it:'it',uk:'uk'})[s.cat]}">View syllabus</button>`:''}</div><div class="chips">${cats}</div>
       ${groups}
       ${edit&&s.fut?`<div class="lbl">Changes apply to</div><div class="seg"><button class="${s.scope!=='future'?'on':''}" data-act="scope" data-v="one">This one</button><button class="${s.scope==='future'?'on':''}" data-act="scope" data-v="future">This &amp; ${s.fut} future</button></div><div class="sub" style="margin:-2px 0 4px">Applies to edits and Delete. Status always changes just this one.</div>`:''}
+      ${edit?`<div class="lbl">Reschedule</div>
+      <div class="seg"><button class="${s.rsm==='copy'?'on':''}" data-act="rsmode" data-v="copy">Make up another day</button><button class="${s.rsm==='move'?'on':''}" data-act="rsmode" data-v="move">Move it</button></div>
+      <div class="sub">${s.rsm==='copy'?'This one stays here as missed, and a copy goes on the day you pick.':'This one moves to the day you pick. Nothing is left here.'}</div>
+      <div class="chips">${dayChips(s.rto,'rsday',s.k)}</div>
+      <div class="row" style="margin-top:8px"><span class="sub grow">Or pick a date</span><input type="date" id="r-date" value="${s.rto||''}"></div>
+      ${s.rto?`<button class="btn rsgo" data-act="rsgo">${s.rsm==='copy'?'Make up':'Move'} on ${esc(longDay(s.rto))}</button>`:''}`:''}
       ${edit?`<div class="lbl">Status</div><div class="stat-row">${[['open','Open'],['done','Done'],['missed','Missed']].map(([v,l])=>`<button class="chip ${s.status===v?'on':''} ${v==='missed'?'ms':''}" style="--c:var(--done)" data-act="status" data-v="${v}">${l}</button>`).join('')}</div>`:''}
       ${ok?`<div class="lbl">Time (optional, sets the reminder)</div>
       <div class="row"><input type="time" id="f-time" value="${esc(s.time)}" class="grow"><button class="pill" data-act="cleartime">No time</button></div>
@@ -404,6 +428,38 @@ function readInputs(){const s=S.sheet;if(!s||s.type!=='edit')return;const t=$('#
   if(t)s.time=t.value;if(n)s.note=n.value.trim();if(w)s.weeks=+w.value}
 function closeSheet(){S.sheet=null;drawSheet()}
 /* ---------- series helpers ---------- */
+/* ---------- reschedule ---------- */
+const shortDay=k=>{const d=parse(k);return `${DOW[(d.getDay()+6)%7]} ${MON[d.getMonth()]} ${d.getDate()}`};
+const tagDay=k=>{const d=parse(k);return `${DOW[(d.getDay()+6)%7]} ${d.getDate()}`};
+const longDay=k=>{const d=parse(k);return `${DOWF[(d.getDay()+6)%7]}, ${MON[d.getMonth()]} ${d.getDate()}`};
+function dayChips(sel,act,skip){const t=new Date();let h='';
+  for(let i=0;i<8;i++){const d=addDays(t,i),k=keyOf(d);if(k===skip)continue;
+    h+=`<button class="chip ${sel===k?'on':''}" style="--c:var(--accent)" data-act="${act}" data-v="${k}">${i===0?'Today':i===1?'Tomorrow':DOW[(d.getDay()+6)%7]+' '+d.getDate()}</button>`}
+  return h}
+/* copy: the original stays (marked missed unless it was done) and a fresh copy goes on toK.
+   move: the item leaves its day entirely. */
+function reschedule(k,id,toK,mode){
+  const e=getDay(k).find(x=>x.id===id);if(!e||!toK)return false;
+  if(mode==='copy'){
+    if(toK===k)return false;
+    setDay(k,getDay(k).map(x=>x.id===id?{...x,missed:!x.done,carriedTo:toK}:x));
+    const c={...e,id:rid(),done:false,missed:false,from:k};delete c.series;delete c.carriedTo;
+    setDay(toK,[...getDay(toK),c]);
+  }else{
+    if(toK===k)return true;
+    setDay(k,getDay(k).filter(x=>x.id!==id));
+    const m={...e,done:false,missed:false};delete m.carriedTo;
+    setDay(toK,[...getDay(toK),m]);
+  }
+  return true;
+}
+function missedIn(monK){const out=[],tk=todayKey();
+  for(let i=0;i<7;i++){const k=keyOf(addDays(parse(monK),i));
+    for(const e of sortItems(getDay(k)))if(!e.done&&!e.carriedTo&&(e.missed||k<tk))out.push({k,e})}
+  return out}
+function openBatch(){const monK=keyOf(mondayOf(S.anchor)),list=missedIn(monK);
+  if(!list.length){toast('Nothing missed this week');return}
+  S.sheet={type:'batch',monK,k:monK,sel:new Set(list.map(x=>x.k+'|'+x.e.id)),to:null,mode:'copy'};drawSheet()}
 function sameSeries(a,b){if(a.series||b.series)return !!a.series&&a.series===b.series;
   return a.cat===b.cat&&(a.time||'')===(b.time||'')&&(a.note||'')===(b.note||'')&&(a.picks||[]).join('|')===(b.picks||[]).join('|')}
 function futureOf(orig,fromK){const out=[];
@@ -531,6 +587,19 @@ document.addEventListener('click',ev=>{
     case 'scope':readInputs();S.sheet.scope=ds.v;drawSheet();break;
     case 'mday':readInputs();S.sheet.mday=ds.v;drawSheet();break;
     case 'rmode':readInputs();S.sheet.rmode=ds.v;drawSheet();break;
+    case 'rsmode':readInputs();S.sheet.rsm=ds.v;drawSheet();break;
+    case 'rsday':readInputs();S.sheet.rto=S.sheet.rto===ds.v?null:ds.v;drawSheet();break;
+    case 'rsgo':{const s=S.sheet;if(s.rsm==='copy'&&s.rto===s.k){toast('Pick a different day');break}
+      if(reschedule(s.k,s.id,s.rto,s.rsm)){toast(`${s.rsm==='copy'?'Made up':'Moved'} to ${shortDay(s.rto)}`);
+        if(s.back==='day')S.sheet={type:'day',k:s.k};else S.sheet=null;drawSheet();render()}break}
+    case 'batch':openBatch();break;
+    case 'bsel':{const x=S.sheet.sel;x.has(ds.v)?x.delete(ds.v):x.add(ds.v);drawSheet();break}
+    case 'ball':{const s=S.sheet,list=missedIn(s.monK);s.sel=s.sel.size===list.length?new Set():new Set(list.map(x=>x.k+'|'+x.e.id));drawSheet();break}
+    case 'bmode':S.sheet.mode=ds.v;drawSheet();break;
+    case 'bday':S.sheet.to=S.sheet.to===ds.v?null:ds.v;drawSheet();break;
+    case 'bgo':{const s=S.sheet;let n=0;for(const id of s.sel){const i=id.indexOf('|'),k=id.slice(0,i),eid=id.slice(i+1);
+        if(s.mode==='copy'&&k===s.to)continue;if(reschedule(k,eid,s.to,s.mode))n++}
+      toast(n?`${s.mode==='copy'?'Made up':'Moved'} ${n} on ${shortDay(s.to)}`:'Nothing to move');S.sheet=null;drawSheet();render();break}
     case 'status':readInputs();S.sheet.status=ds.v;drawSheet();break;
     case 'delentry':if(arm(b,'Tap again to delete')){const s=S.sheet,orig=getDay(s.k).find(e=>e.id===s.id);
       if(orig&&s.scope==='future'){const n=applyFuture(orig,s.k,()=>[]);if(n)toast(`Deleted this and ${n} future`)}
@@ -594,6 +663,8 @@ document.addEventListener('change',ev=>{const t=ev.target;
     if(t.dataset.edit==='cat')c.name=v;else{const g=c.groups[+t.dataset.g],O=S.openGrps;if(O&&O.has(c.id+'|'+g.name)){O.delete(c.id+'|'+g.name);O.add(c.id+'|'+v)}g.name=v}markDirty('library')}
   else if(t.matches('input[data-add]'))addFrom(t,false);
   else if(t.id==='f-weeks')S.sheet.weeks=+t.value;
+  else if(t.id==='r-date'&&S.sheet){readInputs();S.sheet.rto=t.value||null;drawSheet()}
+  else if(t.id==='b-date'&&S.sheet){S.sheet.to=t.value||null;drawSheet()}
   else if(t.id==='restore'&&t.files&&t.files[0]){t.files[0].text().then(txt=>{let o;try{o=JSON.parse(txt)}catch(e){}
     if(!o||o.app!=='daybook'||!o.library||!o.months){toast("That file isn't a Daybook backup");return}
     S.pendingRestore=o;render()})}
